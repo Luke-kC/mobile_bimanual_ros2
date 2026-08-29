@@ -13,18 +13,25 @@ Status: Complete
 - Build with ROS 2 Jazzy.
 - Commit a dependency lock after the first known-good build.
 
-Status:
+Status: Complete
 
 ## M2 — Fake-hardware ROS bringup
 - Start OpenArm with mock hardware.
 - Verify controller manager, hardware interfaces, `/joint_states`, and TF.
 
-Status:
+Status: Complete
 
 ## M3 — Real OpenArm through ros2_control
 - Bring up can0/can1 in classic CAN mode.
 - Apply the temporary CAN 2.0 OpenArm Xacro workaround if still needed upstream.
 - Start real OpenArm hardware with `forward_position_controller`.
+
+Status: Complete
+
+## M3.5 (Not blocking) — Robot Model
+- Model the lab's custom grippers in `mobile_bimanual_description`
+- Stock OpenArm vs gripper URDF does not match physical hardware
+- Both physical grippers currently use 0 rad = closed and negative position = open
 
 Status:
 
