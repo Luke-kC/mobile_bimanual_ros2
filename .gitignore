@@ -1,0 +1,11 @@
+build/
+install/
+log/
+*.mcap
+*.db3
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+src/openarm_ros2/
+src/openarm_description/
