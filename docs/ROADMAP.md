@@ -62,7 +62,7 @@ Status: Complete
 - Mount pedestal on the mobile base.
 - One TF tree represents base -> pedestal -> torso -> arms.
 
-Status:
+Status: WIP
 
 ## M7 — Pedestal integration
 
