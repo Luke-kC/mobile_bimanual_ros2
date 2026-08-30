@@ -53,7 +53,7 @@ Status: Complete
 - Foxglove live visualization.
 - MCAP recording for commands, states, TF, and later cameras/base/pedestal.
 
-Status:
+Status: Complete
 
 ## M6 — Whole-robot description
 
