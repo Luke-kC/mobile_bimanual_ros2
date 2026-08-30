@@ -17,5 +17,4 @@ ros2 bag record \
     /robot_description \
     /mobile_bimanual/joint_targets \
     /left_forward_position_controller/commands \
-    /right_forward_position_controller/commands \
-    /robot_description
+    /right_forward_position_controller/commands
