@@ -27,8 +27,8 @@ setup(
     license="Apache-2.0",
     entry_points={
         "console_scripts": [
-            "joint_state_watch = mobile_bimanual_control.joint_state_watch:main",
-            "command_bridge = mobile_bimanual_control.command_bridge:main",
+            "joint_state_watch = mobile_bimanual_control.ros.joint_state_watch_node:main",
+            "command_bridge = mobile_bimanual_control.ros.command_bridge_node:main",
         ],
     },
 )
