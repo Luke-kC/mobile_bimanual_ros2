@@ -121,3 +121,7 @@ I'll commit `upstream.repos.lock` so others can import that file instead of `ups
 ## Roadmap
 
 See [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+## Code Guideline
+
+See [`docs/CODE_GUIDELINES.md`](/docs/CODE_GUIDELINES.md)
