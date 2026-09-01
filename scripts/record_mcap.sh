@@ -10,11 +10,4 @@ echo "Recording MCAP to: $OUT"
 ros2 bag record \
     -s mcap \
     -o "$OUT" \
-    /joint_states \
-    /dynamic_joint_states \
-    /tf \
-    /tf_static \
-    /robot_description \
-    /mobile_bimanual/joint_targets \
-    /left_forward_position_controller/commands \
-    /right_forward_position_controller/commands
+    --regex '^(/joint_states|/dynamic_joint_states|/tf|/tf_static|/robot_description|/mobile_bimanual/joint_targets|/left_forward_position_controller/commands|/right_forward_position_controller/commands|/openarm_named_joint_states/.*)$'

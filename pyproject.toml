@@ -6,3 +6,21 @@ exclude = ["build", "install", "log"]
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[tool.basedpyright]
+include = ["src"]
+exclude = ["build", "install", "log"]
+extraPaths = [
+  "src/mobile_bimanual_bringup",
+  "src/mobile_bimanual_control",
+]
+typeCheckingMode = "basic"
+reportAny = "none"
+reportExplicitAny = "none"
+reportMissingTypeStubs = "none"
+reportUnknownArgumentType = "none"
+reportUnknownLambdaType = "none"
+reportUnannotatedClassAttribute = "none"
+reportUnknownParameterType = "none"
+reportUnknownVariableType = "none"
+reportUnknownMemberType = "none"
