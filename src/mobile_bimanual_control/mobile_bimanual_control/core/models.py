@@ -1,7 +1,9 @@
 from attr import frozen
 from dataclasses import dataclass
+from enum import Enum, auto
 
 
+# Controller related
 @dataclass(frozen=True)
 class ControllerConfig:
     command_rate_hz: float

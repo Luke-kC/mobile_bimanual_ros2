@@ -29,6 +29,9 @@ setup(
         "console_scripts": [
             "joint_state_watch = mobile_bimanual_control.ros.joint_state_watch_node:main",
             "command_bridge = mobile_bimanual_control.ros.command_bridge_node:main",
+            "sinusoid_position_request = mobile_bimanual_control.ros.sinusoid_position_request_node:main",
+            "named_joint_state_publisher = mobile_bimanual_control.ros.named_joint_state_publisher_node:main",
+            "supervisor_node = mobile_bimanual_control.ros.supervisor_node:main",
         ],
     },
 )
