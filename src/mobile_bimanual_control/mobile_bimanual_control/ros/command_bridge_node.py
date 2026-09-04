@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from mobile_bimanual_interfaces.msg import RobotStatus
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
@@ -25,13 +26,22 @@ from mobile_bimanual_control.core.models import (
 
 class CommandBridgeNode(Node):
     def __init__(self) -> None:
-        super().__init__("command_bridge")
+        super().__init__("command_bridge_node")
+
+        self._external_command_allowed = False
 
         self._controller: BimanualController = BimanualController(
             self._load_config()
         )
 
         self.get_logger().info("Waiting for complete arm joint state...")
+
+        self._supervisor_sub = self.create_subscription(
+            RobotStatus,
+            "mobile_bimanual/supervisor/robot_status",
+            self._supervisor_callback,
+            10,
+        )
 
         self._joint_state_sub = self.create_subscription(
             JointState,
@@ -99,6 +109,9 @@ class CommandBridgeNode(Node):
         )
 
         return self._config
+
+    def _supervisor_callback(self, msg: RobotStatus) -> None:
+        self._external_command_allowed = msg.external_commands_allowed
 
     def _joint_state_callback(
         self,
@@ -178,14 +191,18 @@ class CommandBridgeNode(Node):
             self._reject_target(result.reason or "unknown reason")
             return
 
-        targets = ", ".join(
-            f"{joint}={position:+.4f}"
-            for joint, position in target.positions.items()
-        )
+        # targets = ", ".join(
+        #     f"{joint}={position:+.4f}"
+        #     for joint, position in target.positions.items()
+        # )
 
-        self.get_logger().info(f"Accepted target: {targets}")
+        # self.get_logger().info(f"Accepted target: {targets}")
 
     def _command_timer_callback(self) -> None:
+
+        if not self._external_command_allowed:
+            return
+
         result = self._controller.step(self._now_sec())
 
         if result.state_became_stale:
