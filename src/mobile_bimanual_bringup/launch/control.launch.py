@@ -13,14 +13,24 @@ def generate_launch_description() -> LaunchDescription:
         ]
     )
 
+    supervisor_node = Node(
+        package="mobile_bimanual_control",
+        executable="supervisor",
+        name="supervisor",
+        output="screen",
+    )
+
+    command_bridge_node = Node(
+        package="mobile_bimanual_control",
+        executable="command_bridge",
+        name="command_bridge",
+        output="screen",
+        parameters=[control_config],
+    )
+
     return LaunchDescription(
         [
-            Node(
-                package="mobile_bimanual_control",
-                executable="command_bridge",
-                name="command_bridge",
-                output="screen",
-                parameters=[control_config],
-            ),
+            supervisor_node,
+            command_bridge_node,
         ]
     )

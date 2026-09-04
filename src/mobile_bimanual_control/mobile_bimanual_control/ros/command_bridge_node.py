@@ -191,12 +191,12 @@ class CommandBridgeNode(Node):
             self._reject_target(result.reason or "unknown reason")
             return
 
-        targets = ", ".join(
-            f"{joint}={position:+.4f}"
-            for joint, position in target.positions.items()
-        )
+        # targets = ", ".join(
+        #     f"{joint}={position:+.4f}"
+        #     for joint, position in target.positions.items()
+        # )
 
-        self.get_logger().info(f"Accepted target: {targets}")
+        # self.get_logger().info(f"Accepted target: {targets}")
 
     def _command_timer_callback(self) -> None:
 
