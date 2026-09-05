@@ -13,6 +13,10 @@
         name="headless"
         default="false" />
 
+    <xacro:arg
+        name="initial_keyframe"
+        default="" />
+
     <!-- ============================================================= -->
     <!-- YAM kinematic chain                                           -->
     <!-- ============================================================= -->
@@ -126,6 +130,10 @@
 
             <param name="headless">
                 $(arg headless)
+            </param>
+
+            <param name="initial_keyframe">
+                $(arg initial_keyframe)
             </param>
         </hardware>
 

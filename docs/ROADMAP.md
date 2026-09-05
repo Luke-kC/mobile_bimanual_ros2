@@ -141,7 +141,7 @@ mobile_bimanual_sim
 - Publish simulated YAM joint state.
 - Run headlessly in the devcontainer.
 
-Status:
+Status: **Complete**
 
 ---
 
@@ -162,19 +162,7 @@ Make simulation environments a first-class project feature.
 - Support headless simulation.
 - Define how scenes are selected at launch.
 
-Target structure:
-
-```text
-mobile_bimanual_sim/
-├── config/
-├── launch/
-└── scenes/
-    ├── empty.xml
-    ├── single_arm_table.xml
-    └── ...
-```
-
-Status:
+Status: **Complete**
 
 ---
 

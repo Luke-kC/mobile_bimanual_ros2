@@ -12,6 +12,7 @@
         <mesh name="link3" file="link3.stl" />
         <mesh name="link4" file="link4.stl" />
         <mesh name="link5" file="link5.stl" />
+        <mesh name="gripper" file="gripper.stl" />
     </asset>
 
     <worldbody>
@@ -87,6 +88,13 @@
                                     <joint name="joint6" pos="0 0 0"
                                         axis="1.46014e-15 2.40808e-14 -1" type="hinge"
                                         range="-2.0944 2.0944" actuatorfrcrange="-10 10" />
+                                    <geom
+                                        name="gripper_geom"
+                                        pos="-0.014 -0.0463995 0.0731"
+                                        quat="1 0 0 0"
+                                        type="mesh"
+                                        mesh="gripper"
+                                        rgba="0.109804 0.286275 0.011765 1" />
                                 </body>
                             </body>
                         </body>

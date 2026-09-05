@@ -10,6 +10,7 @@ from launch.substitutions import PathJoinSubstitution
 def generate_launch_description() -> LaunchDescription:
     headless = LaunchConfiguration("headless")
     scene = LaunchConfiguration("scene")
+    initial_keyframe = LaunchConfiguration("initial_keyframe")
 
     description_file = PathJoinSubstitution(
         [
@@ -45,6 +46,8 @@ def generate_launch_description() -> LaunchDescription:
             mujoco_model,
             " headless:=",
             headless,
+            " initial_keyframe:=",
+            initial_keyframe,
         ]
     )
 
@@ -65,6 +68,11 @@ def generate_launch_description() -> LaunchDescription:
                 "scene",
                 default_value="yam_empty.xml",
                 description="MuJoCo scene file to load.",
+            ),
+            DeclareLaunchArgument(
+                "initial_keyframe",
+                default_value="",
+                description="MuJoCo keyframe used for initial simulation state.",
             ),
             Node(
                 package="robot_state_publisher",

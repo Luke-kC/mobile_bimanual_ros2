@@ -10,7 +10,7 @@ MODEL_PATH = (
     / "mobile_bimanual_description"
     / "mujoco"
     / "yam_v1"
-    / "yam_position.xml"
+    / "yam_table.xml"
 )
 
 
@@ -19,9 +19,6 @@ def reset(model: mujoco.MjModel, data: mujoco.MjData) -> None:
 
 
 def main() -> None:
-
-    t0 = time.time()
-
     model = mujoco.MjModel.from_xml_path(str(MODEL_PATH))
     data = mujoco.MjData(model)
 
@@ -29,17 +26,28 @@ def main() -> None:
     print("nv =", model.nv)
     print("nu =", model.nu)
 
-    target = 1
-    joint1 = model.actuator("joint1")
+    for i in range(model.njnt):
+        print(
+            model.joint(i).name,
+            model.jnt_qposadr[i],
+        )
+
+    keyframe_id = model.key("home").id
+
+    mujoco.mj_resetDataKeyframe(
+        model,
+        data,
+        keyframe_id,
+    )
+
+    print("qpos =", data.qpos)
+    print("ctrl =", data.ctrl)
 
     with mujoco.viewer.launch_passive(model, data) as viewer:
         while viewer.is_running():
             loop_start = time.time()
 
-            data.ctrl[joint1.id] = target
-
             mujoco.mj_step(model, data)
-
             viewer.sync()
 
             remaining = model.opt.timestep - (time.time() - loop_start)
