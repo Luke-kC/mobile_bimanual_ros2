@@ -9,12 +9,22 @@ from launch.substitutions import PathJoinSubstitution
 
 def generate_launch_description() -> LaunchDescription:
     headless = LaunchConfiguration("headless")
+    scene = LaunchConfiguration("scene")
 
     description_file = PathJoinSubstitution(
         [
             FindPackageShare("mobile_bimanual_description"),
             "urdf",
             "yam_v1.ros2_control.xacro",
+        ]
+    )
+
+    mujoco_model = PathJoinSubstitution(
+        [
+            FindPackageShare("mobile_bimanual_description"),
+            "mujoco",
+            "yam_v1",
+            scene,
         ]
     )
 
@@ -31,6 +41,10 @@ def generate_launch_description() -> LaunchDescription:
             FindExecutable(name="xacro"),
             " ",
             description_file,
+            " mujoco_model:=",
+            mujoco_model,
+            " headless:=",
+            headless,
         ]
     )
 
@@ -47,6 +61,11 @@ def generate_launch_description() -> LaunchDescription:
                 "headless",
                 default_value="false",
             ),
+            DeclareLaunchArgument(
+                "scene",
+                default_value="yam_empty.xml",
+                description="MuJoCo scene file to load.",
+            ),
             Node(
                 package="robot_state_publisher",
                 executable="robot_state_publisher",
@@ -62,7 +81,6 @@ def generate_launch_description() -> LaunchDescription:
                 parameters=[
                     {"use_sim_time": True},
                     controllers_file,
-                    {"headless": headless},
                 ],
                 output="screen",
             ),

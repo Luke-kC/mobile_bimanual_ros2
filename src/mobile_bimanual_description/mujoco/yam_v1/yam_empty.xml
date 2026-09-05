@@ -1,0 +1,3 @@
+<mujoco model="yam_empty_scene">
+    <include file="yam_position.xml" />
+</mujoco>

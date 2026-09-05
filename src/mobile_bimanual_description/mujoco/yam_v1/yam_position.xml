@@ -27,5 +27,11 @@
             joint="joint5"
             kp="20"
             dampratio="1" />
+        <position
+            name="joint6"
+            joint="joint6"
+            kp="10"
+            dampratio="1"
+        />
     </actuator>
 </mujoco>
