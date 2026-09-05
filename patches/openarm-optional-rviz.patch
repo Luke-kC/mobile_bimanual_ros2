@@ -1,0 +1,40 @@
+diff --git a/openarm_bringup/launch/openarm.bimanual.launch.py b/openarm_bringup/launch/openarm.bimanual.launch.py
+index 95e0c56..70d98ba 100644
+--- a/openarm_bringup/launch/openarm.bimanual.launch.py
++++ b/openarm_bringup/launch/openarm.bimanual.launch.py
+@@ -20,6 +20,7 @@ from ament_index_python.packages import get_package_share_directory
+ 
+ from launch import LaunchDescription, LaunchContext
+ from launch.actions import DeclareLaunchArgument, TimerAction, OpaqueFunction
++from launch.conditions import IfCondition
+ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+ from launch_ros.actions import Node
+ from launch_ros.substitutions import FindPackageShare
+@@ -210,6 +211,11 @@ def generate_launch_description():
+             default_value="openarm_bimanual_controllers.yaml",
+             description="Controllers file to use.",
+         ),
++        DeclareLaunchArgument(
++            "launch_rviz",
++            default_value="true",
++            description="Start RViz with the OpenArm configuration.",
++        ),
+     ]
+ 
+     description_package = LaunchConfiguration("description_package")
+@@ -222,6 +228,7 @@ def generate_launch_description():
+     right_can_interface = LaunchConfiguration("right_can_interface")
+     left_can_interface = LaunchConfiguration("left_can_interface")
+     arm_prefix = LaunchConfiguration("arm_prefix")
++    launch_rviz = LaunchConfiguration("launch_rviz")
+ 
+     controllers_file = PathJoinSubstitution(
+         [FindPackageShare(runtime_config_package), "config",
+@@ -245,6 +252,7 @@ def generate_launch_description():
+         name="rviz2",
+         output="log",
+         arguments=["-d", rviz_config_file],
++        condition=IfCondition(launch_rviz),
+     )
+ 
+     joint_state_broadcaster_spawner = OpaqueFunction(

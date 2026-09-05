@@ -1,0 +1,185 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DEFAULT_CONFIG="$ROOT/.devcontainer/devcontainer.json"
+LINUX_CONFIG="$ROOT/.devcontainer/linux/devcontainer.json"
+HOST_ZDOTDIR="${ZDOTDIR:-$HOME/.config/zsh}"
+CONTAINER_ZDOTDIR="/home/ubuntu/.config/zsh"
+CONTAINER_TERM="${DEVCONTAINER_TERM:-xterm-256color}"
+
+usage() {
+    cat <<'EOF'
+Usage: ./scripts/dev <command>
+
+Commands:
+  up       Create or update the development container
+  shell    Open zsh in the development container
+  nvim     Open the workspace in Neovim in the development container
+  rebuild  Recreate the development container after image changes
+  stop     Stop devcontainers for this workspace
+
+If ~/.config/nvim exists, it is bind-mounted into containers created by this
+script. If $ZDOTDIR (or ~/.config/zsh) exists, it is mounted and used by
+interactive shells. Editor data and shell history remain in Docker volumes.
+EOF
+}
+
+require_command() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        echo "Missing required command: $1" >&2
+        exit 1
+    fi
+}
+
+config_file() {
+    if [[ "$(uname -s)" == "Linux" ]]; then
+        printf '%s\n' "$LINUX_CONFIG"
+    else
+        printf '%s\n' "$DEFAULT_CONFIG"
+    fi
+}
+
+zdotdir_source() {
+    local target
+
+    if [[ ! -L "$HOST_ZDOTDIR/.zshrc" ]]; then
+        printf '%s\n' "$HOST_ZDOTDIR"
+        return
+    fi
+
+    target="$(readlink "$HOST_ZDOTDIR/.zshrc")"
+    if [[ "$target" != /* ]]; then
+        target="$HOST_ZDOTDIR/$target"
+    fi
+
+    (cd "$(dirname "$target")" && pwd -P)
+}
+
+up_container() {
+    local config
+    local host_plugins
+    local resolved_plugins
+    local zdotdir_mount
+    local -a mounts=()
+
+    config="$(config_file)"
+
+    if [[ -d "$HOME/.config/nvim" ]]; then
+        mounts+=(
+            --mount
+            "type=bind,source=$HOME/.config/nvim,target=/home/ubuntu/.config/nvim"
+        )
+    fi
+
+    if [[ -d "$HOST_ZDOTDIR" ]]; then
+        zdotdir_mount="$(zdotdir_source)"
+        mounts+=(
+            --mount
+            "type=bind,source=$zdotdir_mount,target=$CONTAINER_ZDOTDIR"
+        )
+
+        if [[ -d "$HOST_ZDOTDIR/plugins" ]]; then
+            host_plugins="$(cd "$HOST_ZDOTDIR/plugins" && pwd -P)"
+            if [[ -d "$zdotdir_mount/plugins" ]]; then
+                resolved_plugins="$(cd "$zdotdir_mount/plugins" && pwd -P)"
+            else
+                resolved_plugins=""
+            fi
+        fi
+
+        if [[ -n "${host_plugins:-}" && "$host_plugins" != "$resolved_plugins" ]]; then
+            mounts+=(
+                --mount
+                "type=bind,source=$HOST_ZDOTDIR/plugins,target=$CONTAINER_ZDOTDIR/plugins"
+            )
+        fi
+    fi
+
+    devcontainer up \
+        --workspace-folder "$ROOT" \
+        --config "$config" \
+        "${mounts[@]}" \
+        "$@"
+}
+
+exec_container() {
+    local config
+
+    up_container >/dev/null
+    config="$(config_file)"
+
+    devcontainer exec \
+        --workspace-folder "$ROOT" \
+        --config "$config" \
+        "$@"
+}
+
+exec_shell() {
+    local -a env_args=(env "TERM=$CONTAINER_TERM")
+
+    if [[ -n "${COLORTERM:-}" ]]; then
+        env_args+=("COLORTERM=$COLORTERM")
+    fi
+
+    if [[ -d "$HOST_ZDOTDIR" ]]; then
+        env_args+=("ZDOTDIR=$CONTAINER_ZDOTDIR")
+    fi
+
+    exec_container "${env_args[@]}" zsh -l
+}
+
+exec_nvim() {
+    local -a env_args=(env "TERM=$CONTAINER_TERM")
+
+    if [[ -n "${COLORTERM:-}" ]]; then
+        env_args+=("COLORTERM=$COLORTERM")
+    fi
+
+    if [[ -d "$HOST_ZDOTDIR" ]]; then
+        env_args+=("ZDOTDIR=$CONTAINER_ZDOTDIR")
+    fi
+
+    exec_container "${env_args[@]}" zsh -ic 'cd /workspace && exec nvim .'
+}
+
+stop_containers() {
+    local ids
+
+    ids="$(docker ps -q --filter "label=devcontainer.local_folder=$ROOT")"
+    if [[ -z "$ids" ]]; then
+        echo "No running devcontainers found for $ROOT"
+        return
+    fi
+
+    docker stop $ids
+}
+
+require_command docker
+require_command devcontainer
+
+case "${1:-}" in
+    up)
+        up_container
+        ;;
+    shell)
+        exec_shell
+        ;;
+    nvim)
+        exec_nvim
+        ;;
+    rebuild)
+        up_container --remove-existing-container
+        ;;
+    stop)
+        stop_containers
+        ;;
+    -h|--help|help)
+        usage
+        ;;
+    *)
+        usage >&2
+        exit 2
+        ;;
+esac
