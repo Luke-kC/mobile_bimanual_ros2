@@ -1,5 +1,5 @@
 {
-    "name": "Mobile Bimanual ROS 2 (Linux)",
+    "name": "Mobile Bimanual ROS 2 (Linux NVIDIA)",
 
     "build": {
         "dockerfile": "../Dockerfile",
@@ -17,8 +17,11 @@
         "--network=host",
         "--env=DISPLAY",
         "--env=QT_X11_NO_MITSHM=1",
+        "--env=NVIDIA_DRIVER_CAPABILITIES=all",
+        "--env=NVIDIA_VISIBLE_DEVICES=all",
         "--volume=/tmp/.X11-unix:/tmp/.X11-unix:rw",
-        "--device=/dev/dri"
+        "--device=/dev/dri",
+        "--device=nvidia.com/gpu=all"
     ],
 
     "containerEnv": {

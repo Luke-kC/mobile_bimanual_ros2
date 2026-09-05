@@ -118,6 +118,59 @@ Fake bringup does not start RViz by default, which keeps it usable in a
 headless container. `launch_rviz:=true` is available in a GUI-capable native
 environment.
 
+## Linux GUI forwarding
+
+The Linux devcontainer forwards the host X11 socket and `/dev/dri` so ROS GUI
+tools and MuJoCo windows can run from inside the container. This is Linux-only;
+macOS and Docker Desktop continue to use `.devcontainer/devcontainer.json`.
+
+Before creating or rebuilding the Linux container, allow local X11 clients on
+the host:
+
+```bash
+xhost +SI:localuser:$USER
+```
+
+Then recreate the container so Docker applies the GUI and GPU mounts:
+
+```bash
+./scripts/dev rebuild
+```
+
+Run GUI commands from a container shell:
+
+```bash
+./scripts/dev shell
+ros2 launch mujoco_ros2_control_demos 01_basic_robot.launch.py
+```
+
+NVIDIA Docker support is selected automatically when `scripts/dev` finds a
+working NVIDIA driver, `nvidia-ctk`, and a generated CDI GPU spec. After setting
+up the NVIDIA Container Toolkit/CDI on a desktop or laptop, rebuild normally:
+
+```bash
+./scripts/dev rebuild
+```
+
+For troubleshooting, force the NVIDIA-specific config with:
+
+```bash
+DEVCONTAINER_NVIDIA=1 ./scripts/dev rebuild
+```
+
+Or force the standard Linux config with:
+
+```bash
+DEVCONTAINER_NVIDIA=0 ./scripts/dev rebuild
+```
+
+On hybrid laptops with an AMD integrated GPU and NVIDIA discrete GPU, the
+standard Linux container uses `/dev/dri`, which is usually the integrated GPU
+path. The NVIDIA-specific config also adds `--device=nvidia.com/gpu=all` and
+NVIDIA runtime environment variables. If container creation fails with `failed
+to discover GPU vendor from CDI`, use the standard Linux container or fix the
+host NVIDIA Container Toolkit setup.
+
 When the Dockerfile or devcontainer configuration changes:
 
 ```bash

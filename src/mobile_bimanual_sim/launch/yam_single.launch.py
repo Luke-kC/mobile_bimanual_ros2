@@ -1,0 +1,81 @@
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import Command, FindExecutable, LaunchConfiguration
+from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
+from launch_ros.substitutions import FindPackageShare
+from launch.substitutions import PathJoinSubstitution
+
+
+def generate_launch_description() -> LaunchDescription:
+    headless = LaunchConfiguration("headless")
+
+    description_file = PathJoinSubstitution(
+        [
+            FindPackageShare("mobile_bimanual_description"),
+            "urdf",
+            "yam_v1.ros2_control.xacro",
+        ]
+    )
+
+    controllers_file = PathJoinSubstitution(
+        [
+            FindPackageShare("mobile_bimanual_sim"),
+            "config",
+            "yam_single_controllers.yaml",
+        ]
+    )
+
+    robot_description_content = Command(
+        [
+            FindExecutable(name="xacro"),
+            " ",
+            description_file,
+        ]
+    )
+
+    robot_description = {
+        "robot_description": ParameterValue(
+            robot_description_content,
+            value_type=str,
+        )
+    }
+
+    return LaunchDescription(
+        [
+            DeclareLaunchArgument(
+                "headless",
+                default_value="false",
+            ),
+            Node(
+                package="robot_state_publisher",
+                executable="robot_state_publisher",
+                parameters=[
+                    robot_description,
+                    {"use_sim_time": True},
+                ],
+                output="screen",
+            ),
+            Node(
+                package="mujoco_ros2_control",
+                executable="ros2_control_node",
+                parameters=[
+                    {"use_sim_time": True},
+                    controllers_file,
+                    {"headless": headless},
+                ],
+                output="screen",
+            ),
+            Node(
+                package="controller_manager",
+                executable="spawner",
+                arguments=[
+                    "joint_state_broadcaster",
+                    "yam_position_controller",
+                    "--param-file",
+                    controllers_file,
+                ],
+                output="screen",
+            ),
+        ]
+    )

@@ -8,12 +8,22 @@ quote-style = "double"
 indent-style = "space"
 
 [tool.ty]
-extra-paths = ["src/mobile_bimanual_bringup", "src/mobile_bimanual_control"]
+extra-paths = [
+    "src/mobile_bimanual_bringup",
+    "src/mobile_bimanual_control",
+    "src/mobile_bimanual_description",
+    "src/mobile_bimanual_sim",
+]
 
 [tool.basedpyright]
 include = ["src"]
 exclude = ["build", "install", "log"]
-extraPaths = ["src/mobile_bimanual_bringup", "src/mobile_bimanual_control"]
+extraPaths = [
+    "src/mobile_bimanual_bringup",
+    "src/mobile_bimanual_control",
+    "src/mobile_bimanual_description",
+    "src/mobile_bimanual_sim",
+]
 typeCheckingMode = "basic"
 reportAny = "none"
 reportExplicitAny = "none"

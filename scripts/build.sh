@@ -14,6 +14,8 @@ PROJECT_PATHS=(
     src/mobile_bimanual_bringup
     src/mobile_bimanual_control
     src/mobile_bimanual_interfaces
+    src/mobile_bimanual_description
+    src/mobile_bimanual_sim
     src/openarm_description
     src/openarm_ros2/openarm_hardware
     src/openarm_ros2/openarm_bringup
@@ -44,11 +46,13 @@ colcon build \
     openarm_bringup \
     mobile_bimanual_interfaces \
     mobile_bimanual_control \
-    mobile_bimanual_bringup
+    mobile_bimanual_bringup \
+    mobile_bimanual_description \
+    mobile_bimanual_sim
 
 shopt -s nullglob
 compile_databases=("$ROOT"/build/*/compile_commands.json)
-if (( ${#compile_databases[@]} > 0 )); then
+if ((${#compile_databases[@]} > 0)); then
     jq -s 'add' "${compile_databases[@]}" >"$ROOT/compile_commands.json.tmp"
     mv "$ROOT/compile_commands.json.tmp" "$ROOT/compile_commands.json"
     echo "Generated $ROOT/compile_commands.json for clangd"
