@@ -7,13 +7,13 @@ exclude = ["build", "install", "log"]
 quote-style = "double"
 indent-style = "space"
 
+[tool.ty]
+extra-paths = ["src/mobile_bimanual_bringup", "src/mobile_bimanual_control"]
+
 [tool.basedpyright]
 include = ["src"]
 exclude = ["build", "install", "log"]
-extraPaths = [
-  "src/mobile_bimanual_bringup",
-  "src/mobile_bimanual_control",
-]
+extraPaths = ["src/mobile_bimanual_bringup", "src/mobile_bimanual_control"]
 typeCheckingMode = "basic"
 reportAny = "none"
 reportExplicitAny = "none"

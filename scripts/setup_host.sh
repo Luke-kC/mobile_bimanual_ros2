@@ -4,6 +4,7 @@ set -euo pipefail
 sudo apt update
 sudo apt install -y \
     software-properties-common \
+    jq \
     python3-vcstool \
     ros-dev-tools \
     ros-jazzy-ros2-control \

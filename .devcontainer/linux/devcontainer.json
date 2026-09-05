@@ -1,9 +1,9 @@
 {
-    "name": "Mobile Bimanual ROS 2",
+    "name": "Mobile Bimanual ROS 2 (Linux)",
 
     "build": {
-        "dockerfile": "Dockerfile",
-        "context": ".."
+        "dockerfile": "../Dockerfile",
+        "context": "../.."
     },
 
     "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
@@ -13,15 +13,8 @@
     "updateRemoteUserUID": true,
 
     "runArgs": [
-        "--init"
-    ],
-
-    "forwardPorts": [
-        8765
-    ],
-
-    "appPort": [
-        "8765:8765"
+        "--init",
+        "--network=host"
     ],
 
     "containerEnv": {

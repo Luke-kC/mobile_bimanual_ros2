@@ -1,127 +1,275 @@
+
 # mobile_bimanual_ros2
 
 ROS 2 Jazzy workspace for a mobile bimanual manipulation platform.
 
-## Architecture
+## Target architecture
 
 ```mermaid
-flowchart TB
-    subgraph HW[Hardware]
-        PC[Robot computer]
-        CAN[Dual-channel USB-CAN]
-        RA[Right OpenArm]
-        LA[Left OpenArm]
-        PED[Future telescoping pedestal]
-        BASE[Future mobile base]
-        CAM[Future RGB cameras]
-        ESTOP[E-stop / actuator power cutoff]
-        PC --> CAN
-        CAN -->|can0| RA
-        CAN -->|can1| LA
-        PC --> PED
-        PC --> BASE
-        CAM --> PC
-        ESTOP -.cuts actuator power.-> RA
-        ESTOP -.cuts actuator power.-> LA
-        ESTOP -.cuts actuator power.-> PED
-        ESTOP -.cuts actuator power.-> BASE
+flowchart LR
+    subgraph Leader["Leader side"]
+        FAKE["Fake OpenArm<br/>development"]
+        REAL["Physical OpenArm<br/>passive / grav-comp"]
     end
 
-    subgraph ROS[ROS 2 / control]
-        OA[OpenArmHW ros2_control plugin]
-        CM[controller_manager]
-        JS[joint_state_broadcaster]
-        FPC[forward position controllers]
-        BRIDGE[rclpy robot command bridge]
-        OBS[observation/state aggregation]
-        FOX[Foxglove bridge]
-        BAG[rosbag2 MCAP]
-        VLA[Future VLA / policy]
-        TELEOP[Teleop / scripted tests]
+    LEADER_STATE["Leader joint state + TF<br/>end-effector pose"]
 
-        OA --> CM
-        CM --> JS
-        CM --> FPC
-        JS --> OBS
-        TELEOP --> BRIDGE
-        VLA --> BRIDGE
-        BRIDGE --> FPC
-        OBS --> VLA
-        JS --> FOX
-        JS --> BAG
-        BRIDGE --> BAG
+    subgraph Teleop["Teleoperation / retargeting"]
+        REF["Reference / clutch"]
+        MAP["Relative pose mapping"]
+        IK["YAM IK"]
+        SAFE["Follower safety"]
     end
 
-    RA --> OA
-    LA --> OA
+    subgraph Follower["Follower side"]
+        SIM["MuJoCo YAM"]
+        HW["Physical YAM"]
+    end
+
+    FAKE --> LEADER_STATE
+    REAL --> LEADER_STATE
+
+    LEADER_STATE --> REF
+    REF --> MAP
+    MAP --> IK
+    IK --> SAFE
+
+    SAFE --> SIM
+    SAFE --> HW
 ```
 
-## Initial setup
+The intended development progression is:
 
-Assumptions: Ubuntu 24.04 / Kubuntu, ROS 2 Jazzy, zsh.
+```text
+Fake OpenArm
+    -> retargeting
+    -> simulated YAM
+
+Physical passive OpenArm
+    -> same retargeting
+    -> physical YAM
+```
+
+OpenArm has seven arm joints while YAM v1 has six, so follower control will be based
+on end-effector pose retargeting rather than direct joint-to-joint copying.
+
+## Simulation environments
+
+MuJoCo will be used for environment and robot simulation.
+
+This supports several development modes:
+
+## Development environment
+
+The supported development environment is the repository devcontainer.
+
+It provides the shared ROS, compiler, simulation, OpenArm, and editor tooling
+while allowing people to use their preferred editor.
+
+### Terminal / Neovim
 
 ```bash
-./scripts/setup_host.sh
-source /opt/ros/jazzy/setup.zsh
-./scripts/import_upstream.sh
-./scripts/patch_openarm_can20.sh
+./scripts/dev up
+./scripts/dev nvim
+```
+
+When a host Neovim configuration exists at `~/.config/nvim`, `scripts/dev`
+mounts it into the container. Neovim itself and development tools run inside
+the container so the editor sees the same ROS headers, Python packages, and
+compiler environment as the build.
+
+Open another shell with:
+
+```bash
+./scripts/dev shell
+```
+
+### VS Code
+
+Install Docker and the VS Code Dev Containers extension, open this repository,
+then run:
+
+```text
+Dev Containers: Reopen in Container
+```
+
+### Linux only hardware access
+
+On Linux, `scripts/dev` selects the Linux devcontainer configuration, which uses
+host networking so ROS nodes can access SocketCAN interfaces such as `can0` and
+`can1`.
+
+See [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for the full workflow,
+macOS limitations, container lifecycle, editor configuration, and the native
+fallback.
+
+## Build
+
+The devcontainer imports the pinned OpenArm upstream repositories and builds the
+supported package subset during initial setup.
+
+For normal development:
+
+```bash
+./scripts/dev shell
 ./scripts/build.sh
-source install/setup.zsh
 ```
 
-The CAN patch is temporary and exists because this project uses classic CAN 2.0 while current upstream OpenArm ros2_control descriptions default `can_fd` to true. See `docs/CAN20_OPENARM_ROS2.md`.
+The build script generates a root `compile_commands.json` for clangd when CMake
+packages provide compile databases.
 
-## Bring up fake hardware first
+## Current OpenArm baseline
+
+### Fake hardware
 
 ```bash
-source /opt/ros/jazzy/setup.zsh
-source install/setup.zsh
+./scripts/dev shell
+
 ros2 launch mobile_bimanual_bringup openarm_fake.launch.py
 ```
 
-In another terminal:
+Verify from another container shell:
 
 ```bash
-source /opt/ros/jazzy/setup.zsh
-source install/setup.zsh
 ros2 control list_controllers
 ros2 control list_hardware_components -v
 ros2 control list_hardware_interfaces
 ros2 topic echo /joint_states --once
 ```
 
+The fake bringup is headless by default. Set `launch_rviz:=true` only in an
+environment where an RViz GUI is desired.
+
+### Current command/supervisor prototype
+
+```bash
+ros2 launch mobile_bimanual_bringup control.launch.py
+```
+
+The current supervisor is an OpenArm command-mode readiness prototype. It is
+being preserved but not expanded until the leader/follower teleoperation stack
+has defined the final readiness and fault requirements.
+
+For scripted fake-arm motion:
+
+```bash
+ros2 run mobile_bimanual_control sinusoid_position_request
+```
+
+This path is useful for testing the future teleoperation pipeline because fake
+hardware cannot be physically moved by hand.
+
+## YAM / MuJoCo development
+
+The current next milestone is one I2RT YAM v1 arm controlled through ROS 2:
+
+```text
+ROS command
+    -> YAM ros2_control position controller
+    -> mujoco_ros2_control
+    -> MuJoCo YAM
+```
+
+The I2RT YAM v1 model is the source of truth for project geometry and
+kinematics. Its arm model has six joints (`joint1` through `joint6`) and an
+end-effector mount named `gripper`.
+
+The project should keep robot assets and scenes separate:
+
+```text
+mobile_bimanual_description/
+    urdf/
+    mujoco/
+        yam_v1/
+
+mobile_bimanual_sim/
+    config/
+    launch/
+    scenes/
+```
+
+`mobile_bimanual_description` owns robot descriptions/assets.
+
+`mobile_bimanual_sim` owns simulation-specific controller configuration,
+launching, worlds/scenes, object layouts, reset behavior, and simulator
+integration.
+
 ## Foxglove
+
+Start the bridge:
 
 ```bash
 ros2 launch mobile_bimanual_bringup observability.launch.py
 ```
 
-Connect Foxglove to `ws://localhost:8765`.
+Connect Foxglove to:
+
+```text
+ws://localhost:8765
+```
+
+## Recording
+
+Current MCAP recording:
+
+```bash
+./scripts/record_mcap.sh
+```
+
+As the teleoperation/simulation stack is added, recording will expand to include:
+
+- leader joint state
+- leader end-effector pose
+- desired follower end-effector pose
+- desired YAM joint command
+- actual YAM joint state
+- clutch / teleoperation state
+- simulated object state
+- RGB/depth images
+- task / episode metadata
 
 ## Classic CAN hardware setup
+
+Run CAN configuration on the Linux hardware host before launching the
+devcontainer:
 
 ```bash
 ./scripts/can_up.sh
 ./scripts/can_check.sh
+./scripts/dev up
 ```
 
-Expected for each interface: `mtu 16`, `bitrate 1000000`, `state ERROR-ACTIVE`, and no `<FD>` flag.
-`mtu 16` indicates that the interface is configured for Classical CAN (CAN 2.0)
+Expected for each OpenArm bus:
+
+- Classical CAN (`mtu 16`)
+- 1 Mbps
+- `ERROR-ACTIVE`
+- no CAN-FD flag
+
+See [`docs/CAN20_OPENARM_ROS2.md`](docs/CAN20_OPENARM_ROS2.md).
 
 ## Dependency locking
 
-`upstream.repos` starts on upstream `main` while I'm working to set this project up. Once that's done, locking version can be done with:
+Development imports the committed `upstream.repos.lock`.
+
+Update the lock intentionally only after validating newer upstream revisions:
 
 ```bash
 vcs export --exact src > upstream.repos.lock
 ```
 
-I'll commit `upstream.repos.lock` so others can import that file instead of `upstream.repos`.
+The repository currently applies small reproducible patches to pinned OpenArm
+sources for the lab's CAN configuration and headless bringup requirements.
+
+## Documentation
+
+- [Development workflow](docs/DEVELOPMENT.md)
+- [Code guidelines](docs/CODE_GUIDELINES.md)
+- [Boot process](docs/BOOT_PROCESS.md)
+- [CAN 2.0 OpenArm notes](docs/CAN20_OPENARM_ROS2.md)
+- [Data visualization and recording](docs/DATA_VISUALIZATION_AND_RECORDING.md)
+- [Roadmap](docs/ROADMAP.md)
 
 ## Roadmap
 
-See [`docs/ROADMAP.md`](docs/ROADMAP.md).
-
-## Code Guideline
-
-See [`docs/CODE_GUIDELINES.md`](/docs/CODE_GUIDELINES.md)
+See [`docs/ROADMAP.md`](docs/ROADMAP.md) for the current milestone sequence.

@@ -1,9 +1,9 @@
 FROM ros:jazzy-ros-base-noble
 
-ARG USERNAME=rosdev
-ARG USER_UID=1000
-ARG USER_GID=1000
+ARG USERNAME=ubuntu
 ARG NEOVIM_VERSION=v0.12.2
+ARG FZF_VERSION=0.74.3
+ARG STARSHIP_VERSION=v1.26.0
 ARG DEBIAN_FRONTEND=noninteractive
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     git \
     git-lfs \
+    nix-bin \
     software-properties-common \
     build-essential \
     cmake \
@@ -38,9 +39,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-jazzy-tf2-tools \
     can-utils \
     iproute2 \
+    bat \
+    eza \
+    zoxide \
     ripgrep \
     fd-find \
     clangd \
+    cmake-format \
+    gdb \
+    jq \
     nodejs \
     npm \
     unzip \
@@ -58,22 +65,20 @@ RUN add-apt-repository -y ppa:openarm/main \
     && rm -rf /var/lib/apt/lists/*
 
 # ---------------------------------------------------------------------------
-# Non-root development user
+# Development user
 # ---------------------------------------------------------------------------
 
-RUN groupadd --gid "${USER_GID}" "${USERNAME}" \
-    && useradd \
-        --uid "${USER_UID}" \
-        --gid "${USER_GID}" \
-        --create-home \
-        --shell /usr/bin/zsh \
-        "${USERNAME}" \
+RUN usermod --shell /usr/bin/zsh "${USERNAME}" \
     && echo "${USERNAME} ALL=(root) NOPASSWD:ALL" \
         > "/etc/sudoers.d/${USERNAME}" \
     && chmod 0440 "/etc/sudoers.d/${USERNAME}"
 
 # Ubuntu calls fd "fdfind"; LazyVim/tools normally expect "fd".
 RUN ln -s /usr/bin/fdfind /usr/local/bin/fd
+
+# cmake-format installs the linter as "cmake-lint"; nvim-lint expects
+# "cmakelint".
+RUN ln -s /usr/bin/cmake-lint /usr/local/bin/cmakelint
 
 # ---------------------------------------------------------------------------
 # Neovim
@@ -99,12 +104,66 @@ RUN ARCH="$(dpkg --print-architecture)" \
 # LazyVim prerequisite.
 RUN npm install --global tree-sitter-cli
 
+# Shell tools required by the optional host ZDOTDIR configuration. The stock
+# Noble fzf predates `fzf --zsh`, so install a current pinned release.
+RUN ARCH="$(dpkg --print-architecture)" \
+    && case "${ARCH}" in \
+        amd64) FZF_ARCH="amd64"; STARSHIP_ARCH="x86_64" ;; \
+        arm64) FZF_ARCH="arm64"; STARSHIP_ARCH="aarch64" ;; \
+        *) echo "Unsupported architecture: ${ARCH}" && exit 1 ;; \
+    esac \
+    && FZF_ASSET="fzf-${FZF_VERSION}-linux_${FZF_ARCH}.tar.gz" \
+    && curl -fsSL \
+        "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/${FZF_ASSET}" \
+        -o "/tmp/${FZF_ASSET}" \
+    && curl -fsSL \
+        "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf_${FZF_VERSION}_checksums.txt" \
+        -o /tmp/fzf-checksums.txt \
+    && grep " ${FZF_ASSET}$" /tmp/fzf-checksums.txt | (cd /tmp && sha256sum -c -) \
+    && tar -xzf "/tmp/${FZF_ASSET}" -C /usr/local/bin fzf \
+    && STARSHIP_ASSET="starship-${STARSHIP_ARCH}-unknown-linux-musl.tar.gz" \
+    && curl -fsSL \
+        "https://github.com/starship/starship/releases/download/${STARSHIP_VERSION}/${STARSHIP_ASSET}" \
+        -o "/tmp/${STARSHIP_ASSET}" \
+    && curl -fsSL \
+        "https://github.com/starship/starship/releases/download/${STARSHIP_VERSION}/${STARSHIP_ASSET}.sha256" \
+        -o "/tmp/${STARSHIP_ASSET}.sha256" \
+    && printf '%s  %s\n' "$(< "/tmp/${STARSHIP_ASSET}.sha256")" "${STARSHIP_ASSET}" \
+        | (cd /tmp && sha256sum -c -) \
+    && tar -xzf "/tmp/${STARSHIP_ASSET}" -C /usr/local/bin starship \
+    && rm -f /tmp/fzf-checksums.txt "/tmp/${FZF_ASSET}" "/tmp/${STARSHIP_ASSET}" "/tmp/${STARSHIP_ASSET}.sha256"
+
+# Named volumes mounted at these paths retain the development user's ownership.
+RUN mkdir -p \
+        "/home/${USERNAME}/.config" \
+        "/home/${USERNAME}/.local/share/nvim" \
+        "/home/${USERNAME}/.local/state/nvim" \
+        "/home/${USERNAME}/.local/state/zsh" \
+        "/home/${USERNAME}/.cache/nvim" \
+        "/home/${USERNAME}/.cache/zsh" \
+    && chown -R "${USERNAME}:${USERNAME}" \
+        "/home/${USERNAME}/.config" \
+        "/home/${USERNAME}/.local" \
+        "/home/${USERNAME}/.cache"
+
+# Mason builds some editor tools, including the Nix nil language server, from
+# Rust sources. Ubuntu Noble's rustc is too old for nil, so use Rustup stable.
+# nil also calls the `nix` command at build time; nix-bin provides it.
+RUN curl -fsSL https://sh.rustup.rs -o /tmp/rustup-init.sh \
+    && chmod +x /tmp/rustup-init.sh \
+    && sudo -u "${USERNAME}" \
+        HOME="/home/${USERNAME}" \
+        CARGO_HOME="/home/${USERNAME}/.cargo" \
+        RUSTUP_HOME="/home/${USERNAME}/.rustup" \
+        /tmp/rustup-init.sh -y --profile minimal --default-toolchain stable \
+    && rm /tmp/rustup-init.sh
+
 # ---------------------------------------------------------------------------
 # ROS shell setup
 # ---------------------------------------------------------------------------
 
 ENV ROS_WS=/workspace
-ENV PATH="/home/${USERNAME}/.local/bin:${PATH}"
+ENV PATH="/home/${USERNAME}/.cargo/bin:/home/${USERNAME}/.local/bin:${PATH}"
 
 RUN cat <<'EOF' >> /etc/zsh/zshrc
 
