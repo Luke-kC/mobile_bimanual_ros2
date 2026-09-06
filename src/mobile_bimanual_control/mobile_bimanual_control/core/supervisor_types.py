@@ -1,5 +1,5 @@
-from enum import Enum, StrEnum, auto
 from dataclasses import dataclass
+from enum import Enum, StrEnum, auto
 
 
 class HardwareID(StrEnum):

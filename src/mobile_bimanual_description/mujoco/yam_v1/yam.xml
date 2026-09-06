@@ -1,10 +1,9 @@
+<?xml version="1.0"?>
 <mujoco model="yam">
     <compiler angle="radian" meshdir="assets" />
-
     <contact>
         <exclude body1="base" body2="link1" />
     </contact>
-
     <asset>
         <mesh name="base" file="base.stl" />
         <mesh name="link1" file="link1.stl" />
@@ -14,7 +13,6 @@
         <mesh name="link5" file="link5.stl" />
         <mesh name="gripper" file="gripper.stl" />
     </asset>
-
     <worldbody>
         <body name="base" pos="0 0 0" quat="1 0 0 0">
             <inertial pos="-3.83908653914762e-05 2.40068589826393e-05 0.0247677998591499"
@@ -78,22 +76,12 @@
                                     quat="1 4.41654500000011e-16 -2.94293999999983e-16 3.849305e-14">
                                     <inertial pos="-3.57064e-05 0.000249371 -0.0293133"
                                         mass="0.553219"
-                                        fullinertia="
-                                         0.000409669
-                                         0.000324942
-                                         0.000369249
-                                         5.44941e-07
-                                         7.91268e-07
-                                         -4.83959e-06" />
+                                        fullinertia="0.000409669 0.000324942 0.000369249 5.44941e-07 7.91268e-07 -4.83959e-06" />
                                     <joint name="joint6" pos="0 0 0"
                                         axis="1.46014e-15 2.40808e-14 -1" type="hinge"
                                         range="-2.0944 2.0944" actuatorfrcrange="-10 10" />
-                                    <geom
-                                        name="gripper_geom"
-                                        pos="-0.014 -0.0463995 0.0731"
-                                        quat="1 0 0 0"
-                                        type="mesh"
-                                        mesh="gripper"
+                                    <geom name="gripper_geom" pos="-0.014 -0.0463995 0.0731"
+                                        quat="1 0 0 0" type="mesh" mesh="gripper"
                                         rgba="0.109804 0.286275 0.011765 1" />
                                 </body>
                             </body>

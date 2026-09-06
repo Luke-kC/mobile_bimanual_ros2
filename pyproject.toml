@@ -3,6 +3,9 @@ line-length = 80
 
 exclude = ["build", "install", "log"]
 
+[tool.ruff.lint]
+extend-select = ["I"]
+
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
@@ -24,6 +27,17 @@ extraPaths = [
     "src/mobile_bimanual_description",
     "src/mobile_bimanual_sim",
 ]
+
+[tool.pyright]
+include = ["src"]
+exclude = ["build", "install", "log"]
+extraPaths = [
+    "src/mobile_bimanual_bringup",
+    "src/mobile_bimanual_control",
+    "src/mobile_bimanual_description",
+    "src/mobile_bimanual_sim",
+]
+
 typeCheckingMode = "basic"
 reportAny = "none"
 reportExplicitAny = "none"

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from mobile_bimanual_interfaces.msg import RobotStatus
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
@@ -11,17 +10,16 @@ from trajectory_msgs.msg import JointTrajectory
 from mobile_bimanual_control.core.controller import (
     BimanualController,
 )
-
 from mobile_bimanual_control.core.joints import (
     LEFT_ARM_JOINTS,
     RIGHT_ARM_JOINTS,
 )
-
 from mobile_bimanual_control.core.models import (
     ControllerConfig,
     JointStateSnapshot,
     JointTarget,
 )
+from mobile_bimanual_interfaces.msg import RobotStatus
 
 
 class CommandBridgeNode(Node):

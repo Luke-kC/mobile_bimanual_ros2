@@ -37,6 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-jazzy-mujoco-ros2-control \
     ros-jazzy-mujoco-ros2-control-demos \
     ros-jazzy-tf2-tools \
+    ros-jazzy-rqt-graph \
     can-utils \
     iproute2 \
     bat \
@@ -103,6 +104,9 @@ RUN ARCH="$(dpkg --print-architecture)" \
 
 # LazyVim prerequisite.
 RUN npm install --global tree-sitter-cli
+
+# XML formatter used by the shared LazyVim config.
+RUN npm install --global prettier @prettier/plugin-xml
 
 # Shell tools required by the optional host ZDOTDIR configuration. The stock
 # Noble fzf predates `fzf --zsh`, so install a current pinned release.

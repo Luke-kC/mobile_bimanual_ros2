@@ -1,18 +1,17 @@
 import numpy as np
 import rclpy
+from builtin_interfaces.msg import Duration
 from rclpy.node import Node
 from rclpy.time import Time
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-from builtin_interfaces.msg import Duration
 
 from mobile_bimanual_control.core.joints import (
-    RIGHT_ARM_JOINTS,
-    LEFT_ARM_JOINTS,
+    ALL_JOINTS,
     ARM_JOINTS,
     JOINT_LIMITS,
-    ALL_JOINTS,
+    LEFT_ARM_JOINTS,
+    RIGHT_ARM_JOINTS,
 )
-
 
 TRAJECTORY_GENERATOR_HZ = 50
 FUNCTION_FREQ_HZ: float = 0.05

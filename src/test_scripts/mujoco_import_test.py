@@ -4,7 +4,6 @@ from pathlib import Path
 import mujoco
 import mujoco.viewer
 
-
 MODEL_PATH = (
     Path(__file__).resolve().parent.parent
     / "mobile_bimanual_description"
