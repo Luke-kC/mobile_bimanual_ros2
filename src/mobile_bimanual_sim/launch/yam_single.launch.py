@@ -85,6 +85,7 @@ def generate_launch_description() -> LaunchDescription:
                     robot_description,
                     {"use_sim_time": True},
                 ],
+                namespace="follower",
                 output="screen",
             ),
             Node(
@@ -94,6 +95,7 @@ def generate_launch_description() -> LaunchDescription:
                     {"use_sim_time": True},
                     controllers_file,
                 ],
+                namespace="follower",
                 output="screen",
             ),
             Node(
@@ -105,6 +107,7 @@ def generate_launch_description() -> LaunchDescription:
                     "--param-file",
                     controllers_file,
                 ],
+                namespace="follower",
                 output="screen",
             ),
         ]

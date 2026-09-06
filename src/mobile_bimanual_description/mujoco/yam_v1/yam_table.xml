@@ -3,58 +3,51 @@
     <include file="yam_position.xml" />
 
     <worldbody>
-        <light
-            name="main_light"
-            pos="0 0 2"
-            dir="0 0 -1" />
+        <light name="main_light" pos="0 0 2" dir="0 0 -1" />
 
         <camera
-            name="workspace_camera"
-            mode="fixed"
-            pos="0.8 0 0.7"
-            xyaxes="0 1 0 -0.707 0 0.707"
-            fovy="55"
-            resolution="640 480" />
+      name="workspace_camera"
+      mode="fixed"
+      pos="0.8 0 0.7"
+      xyaxes="0 1 0 -0.707 0 0.707"
+      fovy="55"
+      resolution="640 480"
+    />
 
-        <geom
-            name="floor"
-            type="plane"
-            size="2 2 0.1"
-            rgba="0.8 0.8 0.8 1" />
+        <geom name="floor" type="plane" size="2 2 0.1" rgba="0.8 0.8 0.8 1" />
 
-        <body
-            name="table"
-            pos="0.45 0 0.15">
+        <body name="table" pos="0.45 0 0.15">
 
             <geom
-                name="table_top"
-                type="box"
-                size="0.2 0.2 0.025"
-                rgba="0.5 0.4 0.3 1" />
+        name="table_top"
+        type="box"
+        size="0.2 0.2 0.025"
+        rgba="0.5 0.4 0.3 1"
+      />
 
         </body>
 
-        <body
-            name="object"
-            pos="0.4 0 0.45">
+        <body name="object" pos="0.4 0 0.45">
 
             <freejoint name="object_joint" />
 
             <geom
-                name="object_geom"
-                type="box"
-                size="0.025 0.025 0.025"
-                mass="0.05"
-                rgba="0.8 0.1 0.1 1" />
+        name="object_geom"
+        type="box"
+        size="0.025 0.025 0.025"
+        mass="0.05"
+        rgba="0.8 0.1 0.1 1"
+      />
 
         </body>
     </worldbody>
 
     <keyframe>
         <key
-            name="home"
-            qpos="0 0.5 0.5 0 0 0 0.4 0 0.45 1 0 0 0"
-            ctrl="0 0.5 0.5 0 0 0" />
+      name="home"
+      qpos="0 0.9 0.5 0 0 0 0.4 0 0.45 1 0 0 0"
+      ctrl="0 0.5 0.5 0 0 0"
+    />
     </keyframe>
 
 </mujoco>

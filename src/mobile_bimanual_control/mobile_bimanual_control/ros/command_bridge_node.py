@@ -43,27 +43,27 @@ class CommandBridgeNode(Node):
 
         self._joint_state_sub = self.create_subscription(
             JointState,
-            "/joint_states",
+            "/leader/joint_states",
             self._joint_state_callback,
             qos_profile_sensor_data,
         )
 
         self._joint_target_sub = self.create_subscription(
             JointTrajectory,
-            "/mobile_bimanual/joint_targets",
+            "/mobile_bimanual/leader/joint_targets",
             self._joint_target_callback,
             10,
         )
 
         self._right_command_pub = self.create_publisher(
             Float64MultiArray,
-            "right_forward_position_controller/commands",
+            "/leader/right_forward_position_controller/commands",
             10,
         )
 
         self._left_command_pub = self.create_publisher(
             Float64MultiArray,
-            "left_forward_position_controller/commands",
+            "/leader/left_forward_position_controller/commands",
             10,
         )
 

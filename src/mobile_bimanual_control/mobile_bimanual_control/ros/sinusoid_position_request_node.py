@@ -29,7 +29,7 @@ class SinusoidPositionRequestNode(Node):
         )
 
         self._target_pub = self.create_publisher(
-            JointTrajectory, "mobile_bimanual/joint_targets", 10
+            JointTrajectory, "mobile_bimanual/leader/joint_targets", 10
         )
 
     def _trajectory_timer_callback(self) -> None:

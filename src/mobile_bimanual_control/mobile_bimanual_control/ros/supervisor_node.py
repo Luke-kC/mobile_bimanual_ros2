@@ -39,14 +39,14 @@ class SupervisorNode(Node):
 
         self._controller_manager_activity_sub = self.create_subscription(
             ControllerManagerActivity,
-            "/controller_manager/activity",
+            "/leader/controller_manager/activity",
             self._activity_callback,
             qos,
         )
 
         self._joint_state_sub = self.create_subscription(
             JointState,
-            "/joint_states",
+            "/leader/joint_states",
             self._joint_state_callback,
             qos_profile_sensor_data,
         )
