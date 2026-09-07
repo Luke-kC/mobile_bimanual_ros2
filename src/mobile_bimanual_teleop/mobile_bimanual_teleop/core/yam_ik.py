@@ -6,7 +6,7 @@ import mujoco
 import numpy as np
 from mink.exceptions import NoSolutionFound
 
-MAX_ITERATIONS = 100
+MAX_ITERATIONS = 200
 IK_DT_SEC = 0.01
 
 
@@ -97,7 +97,7 @@ class YamIK:
                 position_error_m = float(np.linalg.norm(error[:3]))
                 orientation_error_rad = float(np.linalg.norm(error[3:]))
 
-                if position_error_m < 0.01 and orientation_error_rad < 0.01:
+                if position_error_m < 1e-4 and orientation_error_rad < 1e-3:
                     return IKResult(
                         q=self._configuration.q.copy(),
                         converged=True,

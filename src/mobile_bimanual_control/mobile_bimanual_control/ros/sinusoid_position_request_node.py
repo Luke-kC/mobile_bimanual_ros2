@@ -37,7 +37,7 @@ class SinusoidPositionRequestNode(Node):
         now = self.get_clock().now()
         time_s: float = (now - self._initialize_time).nanoseconds / 1e9
 
-        sine_val = 0.15 * np.sin(2.0 * np.pi * FUNCTION_FREQ_HZ * time_s)
+        sine_val = 0.25 * np.sin(2.0 * np.pi * FUNCTION_FREQ_HZ * time_s)
 
         msg: JointTrajectory = JointTrajectory()
         msg.header.stamp = now.to_msg()

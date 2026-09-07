@@ -152,6 +152,33 @@ up the NVIDIA Container Toolkit/CDI on a desktop or laptop, rebuild normally:
 ./scripts/dev rebuild
 ```
 
+On Ubuntu, if `apt` cannot find `nvidia-container-toolkit`, add NVIDIA's
+container toolkit apt repository first. The source line must reference the
+downloaded keyring; otherwise `apt update` can fail with `NO_PUBKEY` even when
+the key file exists:
+
+```bash
+sudo apt-get install -y curl ca-certificates gpg
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
+  | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+
+curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
+  | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' \
+  | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list >/dev/null
+
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit
+sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+nvidia-ctk cdi list
+```
+
+`nvidia-ctk cdi list` should include `nvidia.com/gpu=all`. Verify Docker can
+see the GPU before rebuilding the devcontainer:
+
+```bash
+docker run --rm --device=nvidia.com/gpu=all nvidia/cuda:12.6.0-base-ubuntu22.04 nvidia-smi
+```
+
 For troubleshooting, force the NVIDIA-specific config with:
 
 ```bash
