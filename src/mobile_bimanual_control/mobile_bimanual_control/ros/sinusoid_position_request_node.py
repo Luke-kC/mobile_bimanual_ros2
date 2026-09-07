@@ -37,7 +37,7 @@ class SinusoidPositionRequestNode(Node):
         now = self.get_clock().now()
         time_s: float = (now - self._initialize_time).nanoseconds / 1e9
 
-        sine_val = 0.35 * np.sin(2.0 * np.pi * FUNCTION_FREQ_HZ * time_s)
+        sine_val = 0.15 * np.sin(2.0 * np.pi * FUNCTION_FREQ_HZ * time_s)
 
         msg: JointTrajectory = JointTrajectory()
         msg.header.stamp = now.to_msg()
@@ -65,11 +65,14 @@ class SinusoidPositionRequestNode(Node):
                 if sine_val >= 0.0:
                     msg.joint_names.append(joint)
                     point.positions.append(target_rad)
-
-            if joint in LEFT_ARM_JOINTS:
-                if sine_val <= 0.0:
+                else:
                     msg.joint_names.append(joint)
-                    point.positions.append(target_rad)
+                    point.positions.append(-target_rad)
+
+            # if joint in LEFT_ARM_JOINTS:
+            #     if sine_val <= 0.0:
+            #         msg.joint_names.append(joint)
+            #         point.positions.append(target_rad)
 
         point.time_from_start = Duration(
             sec=0, nanosec=int(1e9 / TRAJECTORY_GENERATOR_HZ)

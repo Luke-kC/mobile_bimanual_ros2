@@ -16,26 +16,18 @@ extra-paths = [
     "src/mobile_bimanual_control",
     "src/mobile_bimanual_description",
     "src/mobile_bimanual_sim",
+    "src/mobile_bimanual_teleop",
 ]
 
 [tool.basedpyright]
 include = ["src"]
-exclude = ["build", "install", "log"]
+exclude = ["build", "install", "log", "**/.venv"]
 extraPaths = [
     "src/mobile_bimanual_bringup",
     "src/mobile_bimanual_control",
     "src/mobile_bimanual_description",
     "src/mobile_bimanual_sim",
-]
-
-[tool.pyright]
-include = ["src"]
-exclude = ["build", "install", "log"]
-extraPaths = [
-    "src/mobile_bimanual_bringup",
-    "src/mobile_bimanual_control",
-    "src/mobile_bimanual_description",
-    "src/mobile_bimanual_sim",
+    "src/mobile_bimanual_teleop",
 ]
 
 typeCheckingMode = "basic"

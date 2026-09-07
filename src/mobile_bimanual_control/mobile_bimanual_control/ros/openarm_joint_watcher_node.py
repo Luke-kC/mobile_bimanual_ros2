@@ -4,6 +4,7 @@ from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from rclpy.utilities import ok as rclpy_ok
 from sensor_msgs.msg import JointState
+from std_msgs.msg import Float64MultiArray
 
 from mobile_bimanual_control.core.joints import (
     LEFT_ARM_JOINTS,
@@ -17,9 +18,15 @@ class OpenarmJointWatcherNode(Node):
 
         self._openarm_joint_state_sub = self.create_subscription(
             JointState,
-            "/joint_states",
+            "/leader/joint_states",
             self._joint_state_callback,
             qos_profile_sensor_data,
+        )
+
+        self._yam_command_pub = self.create_publisher(
+            Float64MultiArray,
+            "/follower/yam_position_controller/commands",
+            10,
         )
 
     def _joint_state_callback(self, msg: JointState) -> None:
@@ -44,11 +51,20 @@ class OpenarmJointWatcherNode(Node):
             joint in RIGHT_ARM_JOINTS for joint in right_arm_positions
         ) and len(right_arm_positions) == len(RIGHT_ARM_JOINTS)
 
-        if left_arm_valid:
-            self.get_logger().info("Ready to broadcast LEFT arm")
-
         if right_arm_valid:
-            self.get_logger().info("Ready to broadcast RIGHT arm")
+            yam_command = Float64MultiArray()
+            yam_command.data = [
+                right_arm_positions[RIGHT_ARM_JOINTS[0]]
+                + left_arm_positions[LEFT_ARM_JOINTS[0]],
+                right_arm_positions[RIGHT_ARM_JOINTS[0]]
+                - left_arm_positions[LEFT_ARM_JOINTS[0]],
+                right_arm_positions[RIGHT_ARM_JOINTS[0]]
+                - left_arm_positions[LEFT_ARM_JOINTS[0]],
+                0,
+                0,
+                0,
+            ]
+            self._yam_command_pub.publish(yam_command)
 
 
 def main(args: list[str] | None = None) -> None:

@@ -16,6 +16,7 @@ PROJECT_PATHS=(
     src/mobile_bimanual_interfaces
     src/mobile_bimanual_description
     src/mobile_bimanual_sim
+    src/mobile_bimanual_teleop
     src/openarm_description
     src/openarm_ros2/openarm_hardware
     src/openarm_ros2/openarm_bringup
@@ -48,7 +49,8 @@ colcon build \
     mobile_bimanual_control \
     mobile_bimanual_bringup \
     mobile_bimanual_description \
-    mobile_bimanual_sim
+    mobile_bimanual_sim \
+    mobile_bimanual_teleop
 
 shopt -s nullglob
 compile_databases=("$ROOT"/build/*/compile_commands.json)
