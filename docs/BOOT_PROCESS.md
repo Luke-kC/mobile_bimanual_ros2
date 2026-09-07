@@ -39,6 +39,10 @@ These nodes and which package they belong can be changed, the current ones are j
 ## Proposed process
 
 ```mermaid
+---
+config:
+  layout: elk
+---
 flowchart TD
     START["ros2 launch mobile_bimanual_bringup robot.launch.py"]
 

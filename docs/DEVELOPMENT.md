@@ -62,7 +62,7 @@ container before `scripts/dev` added the Neovim mount, recreate it once:
 ./scripts/dev rebuild
 ```
 
-## Zsh configuration
+## Zsh
 
 My personal machine has `$ZDOTDIR`, so when `$ZDOTDIR` exists on the host, `scripts/dev` bind-mounts it at
 `/home/ubuntu/.config/zsh`. If `ZDOTDIR` is unset, the launcher checks
@@ -78,6 +78,33 @@ The configuration is a live host mount, so edits or plugin updates made inside
 the container also affect the host configuration. Host-specific aliases that
 refer to paths such as `/home/{your_user_name}` or tools outside the container remain
 defined but will only work where those dependencies exist.
+
+## Tmux
+
+My personal machine has `tmux` installed. Tmux is a terminal multiplexer that runs, switches, and manages
+multiple terminal sessions, windows, and split panes inside a single screen or remote connection.
+
+Similar to Zsh, the devcontainer looks to see whether you already have a `.tmux.conf` file somewhere,
+then symlinks it into the container. If not, then `tmux` will just use its default config.
+
+The checking precedence is:
+
+1. Host `~/.tmux.conf` gets linked to container `~/.tmux.conf`
+2. Otherwise, host `~/.config/tmux/tmux.conf` gets linked to container `~/.config/tmux/tmux.conf`
+
+Your personal terminal emulator (like Ghostty) may already have pane-splitting functionality; however,
+splitting this way needs you to re-enter the devcontainer for each pane.
+
+With `tmux`, you simply need to enter the devcontainer once, then type `tmux` and start creating your layout.
+
+Because the container gets rebuilt/stops often, the `tmux` session may not always be there for you to re-attach.
+Therefore, `scripts/tmux-ros.sh` is provided to create a 2x2 grid through `tmux` with each pane properly sourced for ROS.
+
+Run this after entering the devcontainer:
+
+```zsh
+./scripts/tmux-ros.sh
+```
 
 ## Regular development
 
@@ -245,7 +272,6 @@ Open more terminals with `./scripts/dev shell`, or use:
 ./scripts/dev nvim
 ```
 
-
 ## macOS
 
 Use `./scripts/dev up`, `./scripts/dev shell`, and `./scripts/dev nvim` for
@@ -253,7 +279,7 @@ editing, builds, tests, fake hardware, and Foxglove. Docker Desktop runs a
 Linux VM and does not expose macOS hardware as Linux SocketCAN interfaces, so
 direct `can0`/`can1` hardware operation is not supported.
 
-Hardware tests from a Mac is not really supported, since I don't have a Mac. I would suggest running on a lab laptop (if we have one) or from the Jetson when we eventually set that up. 
+Hardware tests from a Mac is not really supported, since I don't have a Mac. I would suggest running on a lab laptop (if we have one) or from the Jetson when we eventually set that up.
 
 ## Native-host fallback
 

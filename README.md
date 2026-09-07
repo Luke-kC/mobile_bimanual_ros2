@@ -5,6 +5,10 @@ ROS 2 Jazzy workspace for a mobile bimanual manipulation platform.
 ## Target architecture
 
 ```mermaid
+---
+config:
+  layout: elk
+---
 flowchart LR
     subgraph Leader["Leader side"]
         FAKE["Fake OpenArm<br/>development"]

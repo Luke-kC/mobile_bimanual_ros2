@@ -3,7 +3,7 @@
 # Name of the tmux session
 SESSION="ros_workspace"
 
-ROS_SETUP="source /opt/ros/$ROS_DISTRO/setup.zsh && source ./install/setup.zsh && clear"
+ROS_SETUP='source /opt/ros/${ROS_DISTRO:-jazzy}/setup.zsh && [[ -f /workspace/install/setup.zsh ]] && source /workspace/install/setup.zsh; clear'
 
 # Start a new session, but don't attach to it yet
 tmux new-session -d -s $SESSION
