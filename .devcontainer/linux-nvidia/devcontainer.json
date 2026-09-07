@@ -3,7 +3,11 @@
 
     "build": {
         "dockerfile": "../Dockerfile",
-        "context": "../.."
+        "context": "../..",
+        "options": [
+            "--tag",
+            "mobile-bimanual-ros2-linux-nvidia-dev:latest"
+        ]
     },
 
     "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
@@ -14,6 +18,7 @@
 
     "runArgs": [
         "--init",
+        "--name=mobile-bimanual-ros2-linux-nvidia",
         "--network=host",
         "--env=DISPLAY",
         "--env=QT_X11_NO_MITSHM=1",
@@ -29,6 +34,7 @@
     },
 
     "mounts": [
+        "source=${localEnv:HOME},target=/host-home,type=bind,readonly",
         "source=mobile-bimanual-build,target=/workspace/build,type=volume",
         "source=mobile-bimanual-install,target=/workspace/install,type=volume",
         "source=mobile-bimanual-log,target=/workspace/log,type=volume",
