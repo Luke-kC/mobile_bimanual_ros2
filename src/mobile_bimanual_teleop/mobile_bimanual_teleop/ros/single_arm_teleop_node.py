@@ -1,4 +1,5 @@
 from pathlib import Path
+from time import perf_counter
 
 import numpy as np
 import rclpy
@@ -40,6 +41,7 @@ class SingleArmTeleopNode(Node):
         )
 
         self._yam_ik = YamIK(yam_model_path)
+        self._print_count = 0
 
         self._leader_T_base_ee_ref: np.ndarray | None = None
         self._follower_T_base_ee_ref: np.ndarray | None = None
@@ -112,7 +114,11 @@ class SingleArmTeleopNode(Node):
             follower_ref=self._follower_T_base_ee_ref,
         )
 
+        start = perf_counter()
+
         ik_result = self._yam_ik.solve(follower_T_base_ee_desired)
+
+        solve_time_ms = (perf_counter() - start) * 1000.0
 
         if ik_result.q is None:
             self.get_logger().warning(
@@ -124,6 +130,13 @@ class SingleArmTeleopNode(Node):
         follower_command_ros.data = ik_result.q.copy().flatten().tolist()
 
         self._follower_command_pub.publish(follower_command_ros)
+
+        if self._print_count % 50 == 0:
+            self.get_logger().info(
+                f"IK: {solve_time_ms:.2f} ms, iterations: {ik_result.iterations}"
+            )
+
+        self._print_count += 1
 
         # leader_matrix_str = np.array2string(
         #     leader_spatial_delta, precision=3, suppress_small=True
