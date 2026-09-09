@@ -91,7 +91,7 @@ def generate_launch_description():
                     "right_gripper_controller",
                 ],
                 output="screen",
-            )
+            ),
         ],
     )
 
@@ -154,7 +154,7 @@ def generate_launch_description():
             hardware_leader_launch_description,
             deactivate_controllers_action,
             deactivate_hardware_action,
-            sim_follower_launch_description,
+            # sim_follower_launch_description,
             foxglove_launch_description,
         ]
     )

@@ -27,6 +27,7 @@ setup(
     entry_points={
         "console_scripts": [
             "single_arm_teleop_node = mobile_bimanual_teleop.ros.single_arm_teleop_node:main",
+            "openarm_joint_mirror_node = mobile_bimanual_teleop.ros.openarm_joint_mirror_node:main",
         ],
     },
 )

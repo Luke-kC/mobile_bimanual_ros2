@@ -24,4 +24,7 @@ endif()
 
 install(DIRECTORY mujoco urdf DESTINATION share/${PROJECT_NAME})
 
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../openarm_mujoco/v1
+        DESTINATION share/${PROJECT_NAME}/mujoco/openarm_mujoco)
+
 ament_package()
