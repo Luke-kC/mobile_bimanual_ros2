@@ -46,7 +46,7 @@ def generate_launch_description():
         [
             FindPackageShare("mobile_bimanual_sim"),
             "launch",
-            "yam_single.launch.py",
+            "openarm_bimanual.launch.py",
         ]
     )
 
@@ -54,8 +54,6 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(sim_follower_launch_path),
         launch_arguments={
             "headless": LaunchConfiguration("headless"),
-            "scene": LaunchConfiguration("scene"),
-            "initial_keyframe": LaunchConfiguration("initial_keyframe"),
         }.items(),
     )
 
@@ -136,16 +134,16 @@ def generate_launch_description():
                 default_value="false",
                 description="Set true to start without RViz for OpenArm and without MuJoCo GUI for YAM.",
             ),
-            DeclareLaunchArgument(
-                "scene",
-                default_value="yam_empty.xml",
-                description="MuJoCo scene file to load for the YAM sim.",
-            ),
-            DeclareLaunchArgument(
-                "initial_keyframe",
-                default_value="",
-                description="MuJoCo keyframe used for YAM initial simulation state.",
-            ),
+            # DeclareLaunchArgument(
+            #     "scene",
+            #     default_value="yam_empty.xml",
+            #     description="MuJoCo scene file to load for the YAM sim.",
+            # ),
+            # DeclareLaunchArgument(
+            #     "initial_keyframe",
+            #     default_value="",
+            #     description="MuJoCo keyframe used for YAM initial simulation state.",
+            # ),
             DeclareLaunchArgument(
                 "leader_disable_delay",
                 default_value="6.0",
@@ -154,7 +152,7 @@ def generate_launch_description():
             hardware_leader_launch_description,
             deactivate_controllers_action,
             deactivate_hardware_action,
-            # sim_follower_launch_description,
+            sim_follower_launch_description,
             foxglove_launch_description,
         ]
     )

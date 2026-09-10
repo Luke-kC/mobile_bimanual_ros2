@@ -5,12 +5,12 @@
         openarm_left_joint1:
           p: 70.0
           i: 0.0
-          d: 0.0
+          d: 5.0
 
         openarm_left_joint2:
           p: 70.0
           i: 0.0
-          d: 0.0
+          d: 5.0
 
         openarm_left_joint3:
           p: 70.0
@@ -40,12 +40,12 @@
         openarm_right_joint1:
           p: 70.0
           i: 0.0
-          d: 0.0
+          d: 5.0
 
         openarm_right_joint2:
           p: 70.0
           i: 0.0
-          d: 0.0
+          d: 5.0
 
         openarm_right_joint3:
           p: 70.0
