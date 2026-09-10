@@ -5,6 +5,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEFAULT_CONFIG="$ROOT/.devcontainer/devcontainer.json"
 LINUX_CONFIG="$ROOT/.devcontainer/linux/devcontainer.json"
+LINUX_NVIDIA_CONFIG="$ROOT/.devcontainer/linux-nvidia/devcontainer.json"
 HOST_ZDOTDIR="${ZDOTDIR:-$HOME/.config/zsh}"
 CONTAINER_ZDOTDIR="/home/ubuntu/.config/zsh"
 CONTAINER_TERM="${DEVCONTAINER_TERM:-xterm-256color}"
@@ -35,10 +36,37 @@ require_command() {
 
 config_file() {
     if [[ "$(uname -s)" == "Linux" ]]; then
+        case "${DEVCONTAINER_NVIDIA:-auto}" in
+            1|true|yes|on)
+                printf '%s\n' "$LINUX_NVIDIA_CONFIG"
+                return
+                ;;
+            0|false|no|off)
+                printf '%s\n' "$LINUX_CONFIG"
+                return
+                ;;
+            auto)
+                if nvidia_cdi_available; then
+                    printf '%s\n' "$LINUX_NVIDIA_CONFIG"
+                    return
+                fi
+                ;;
+            *)
+                printf 'Invalid DEVCONTAINER_NVIDIA value: %s\n' "$DEVCONTAINER_NVIDIA" >&2
+                exit 2
+                ;;
+        esac
+
         printf '%s\n' "$LINUX_CONFIG"
     else
         printf '%s\n' "$DEFAULT_CONFIG"
     fi
+}
+
+nvidia_cdi_available() {
+    command -v nvidia-smi >/dev/null 2>&1 \
+        && command -v nvidia-ctk >/dev/null 2>&1 \
+        && nvidia-ctk cdi list 2>/dev/null | grep -q '^nvidia.com/gpu='
 }
 
 zdotdir_source() {

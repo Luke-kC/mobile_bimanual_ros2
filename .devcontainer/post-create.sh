@@ -6,6 +6,13 @@ ROOT="/workspace"
 
 cd "$ROOT"
 
+if [[ -f /host-home/.tmux.conf ]]; then
+    ln -sfn /host-home/.tmux.conf "$HOME/.tmux.conf"
+elif [[ -f /host-home/.config/tmux/tmux.conf ]]; then
+    mkdir -p "$HOME/.config/tmux"
+    ln -sfn /host-home/.config/tmux/tmux.conf "$HOME/.config/tmux/tmux.conf"
+fi
+
 echo "=== Preparing workspace build directories ==="
 
 sudo mkdir -p \

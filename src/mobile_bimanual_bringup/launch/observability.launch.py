@@ -14,7 +14,7 @@ def generate_launch_description() -> LaunchDescription:
                     {
                         "asset_uri_allowlist": [
                             (
-                                r"^package://openarm_description/"
+                                r"^package://(?:openarm_description|mobile_bimanual_description)/"
                                 r"(?:[-\w%.]+/)*"
                                 r"[-\w%.]+\."
                                 r"(?:dae|fbx|glb|gltf|jpeg|jpg|mtl|"

@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+
+<robot
+  xmlns:xacro="http://www.ros.org/wiki/xacro"
+  name="openarm_v1_mujoco"
+>
+
+  <!--
+    Reuse OpenArm's actual v1 bimanual URDF.
+
+    ros2_control is false by default in this upstream Xacro, which is
+    important: we do NOT want OpenArmHW or GenericSystem here.
+    We add our own MuJoCo hardware interface below.
+  -->
+  <xacro:include
+    filename="$(find openarm_description)/assets/robot/openarm_v1.0/urdf/openarm_v10.urdf.xacro"
+  />
+
+  <xacro:arg name="mujoco_model" default="" />
+  <xacro:arg name="pids_config_file" default="" />
+  <xacro:arg name="headless" default="false" />
+
+  <xacro:macro name="arm_joint" params="name">
+    <joint name="${name}">
+      <command_interface name="position" />
+
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+  </xacro:macro>
+
+  <ros2_control name="OpenArmMujocoSystem" type="system">
+
+    <hardware>
+      <plugin>
+        mujoco_ros2_control/MujocoSystemInterface
+      </plugin>
+
+      <param name="mujoco_model">
+        $(arg mujoco_model)
+      </param>
+
+      <param name="pids_config_file">
+        $(arg pids_config_file)
+      </param>
+
+      <param name="headless">
+        $(arg headless)
+      </param>
+    </hardware>
+
+    <!-- Left arm -->
+    <xacro:arm_joint name="openarm_left_joint1" />
+    <xacro:arm_joint name="openarm_left_joint2" />
+    <xacro:arm_joint name="openarm_left_joint3" />
+    <xacro:arm_joint name="openarm_left_joint4" />
+    <xacro:arm_joint name="openarm_left_joint5" />
+    <xacro:arm_joint name="openarm_left_joint6" />
+    <xacro:arm_joint name="openarm_left_joint7" />
+
+    <!-- Right arm -->
+    <xacro:arm_joint name="openarm_right_joint1" />
+    <xacro:arm_joint name="openarm_right_joint2" />
+    <xacro:arm_joint name="openarm_right_joint3" />
+    <xacro:arm_joint name="openarm_right_joint4" />
+    <xacro:arm_joint name="openarm_right_joint5" />
+    <xacro:arm_joint name="openarm_right_joint6" />
+    <xacro:arm_joint name="openarm_right_joint7" />
+
+  </ros2_control>
+
+</robot>

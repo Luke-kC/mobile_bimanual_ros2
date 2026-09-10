@@ -26,9 +26,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ninja-build \
     pkg-config \
     python3-dev \
+    python3-numpy \
     python3-pip \
+    python3-scipy \
     python3-venv \
     python3-vcstool \
+    libegl1 \
+    libgl1 \
+    libglx-mesa0 \
+    libosmesa6 \
     ros-dev-tools \
     ros-jazzy-ros2-control \
     ros-jazzy-ros2-controllers \
@@ -37,6 +43,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-jazzy-mujoco-ros2-control \
     ros-jazzy-mujoco-ros2-control-demos \
     ros-jazzy-tf2-tools \
+    ros-jazzy-rqt-graph \
     can-utils \
     iproute2 \
     bat \
@@ -50,8 +57,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     jq \
     nodejs \
     npm \
+    tmux \
     unzip \
     && rm -rf /var/lib/apt/lists/*
+
+RUN python3 -m pip install \
+    --break-system-packages \
+    --no-cache-dir \
+    --root-user-action=ignore \
+    --no-deps \
+    absl-py==2.5.0 \
+    daqp==0.9.1 \
+    etils==1.14.0 \
+    fsspec==2026.7.0 \
+    glfw==2.10.2 \
+    mink==1.3.0 \
+    mujoco==3.12.0 \
+    PyOpenGL==3.1.10 \
+    qpsolvers==4.13.0
 
 # ---------------------------------------------------------------------------
 # OpenArm CAN dependency
@@ -103,6 +126,9 @@ RUN ARCH="$(dpkg --print-architecture)" \
 
 # LazyVim prerequisite.
 RUN npm install --global tree-sitter-cli
+
+# XML formatter used by the shared LazyVim config.
+RUN npm install --global prettier @prettier/plugin-xml
 
 # Shell tools required by the optional host ZDOTDIR configuration. The stock
 # Noble fzf predates `fzf --zsh`, so install a current pinned release.

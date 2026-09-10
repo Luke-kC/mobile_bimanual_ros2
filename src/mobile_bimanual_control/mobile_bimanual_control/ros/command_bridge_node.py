@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from mobile_bimanual_interfaces.msg import RobotStatus
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
@@ -11,17 +10,16 @@ from trajectory_msgs.msg import JointTrajectory
 from mobile_bimanual_control.core.controller import (
     BimanualController,
 )
-
 from mobile_bimanual_control.core.joints import (
     LEFT_ARM_JOINTS,
     RIGHT_ARM_JOINTS,
 )
-
 from mobile_bimanual_control.core.models import (
     ControllerConfig,
     JointStateSnapshot,
     JointTarget,
 )
+from mobile_bimanual_interfaces.msg import RobotStatus
 
 
 class CommandBridgeNode(Node):
@@ -45,27 +43,27 @@ class CommandBridgeNode(Node):
 
         self._joint_state_sub = self.create_subscription(
             JointState,
-            "/joint_states",
+            "/leader/joint_states",
             self._joint_state_callback,
             qos_profile_sensor_data,
         )
 
         self._joint_target_sub = self.create_subscription(
             JointTrajectory,
-            "/mobile_bimanual/joint_targets",
+            "/mobile_bimanual/leader/joint_targets",
             self._joint_target_callback,
             10,
         )
 
         self._right_command_pub = self.create_publisher(
             Float64MultiArray,
-            "right_forward_position_controller/commands",
+            "/leader/right_forward_position_controller/commands",
             10,
         )
 
         self._left_command_pub = self.create_publisher(
             Float64MultiArray,
-            "left_forward_position_controller/commands",
+            "/leader/left_forward_position_controller/commands",
             10,
         )
 

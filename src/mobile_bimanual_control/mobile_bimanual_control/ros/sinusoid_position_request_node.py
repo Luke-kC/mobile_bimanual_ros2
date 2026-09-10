@@ -1,18 +1,17 @@
 import numpy as np
 import rclpy
+from builtin_interfaces.msg import Duration
 from rclpy.node import Node
 from rclpy.time import Time
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-from builtin_interfaces.msg import Duration
 
 from mobile_bimanual_control.core.joints import (
-    RIGHT_ARM_JOINTS,
-    LEFT_ARM_JOINTS,
+    ALL_JOINTS,
     ARM_JOINTS,
     JOINT_LIMITS,
-    ALL_JOINTS,
+    LEFT_ARM_JOINTS,
+    RIGHT_ARM_JOINTS,
 )
-
 
 TRAJECTORY_GENERATOR_HZ = 50
 FUNCTION_FREQ_HZ: float = 0.05
@@ -30,7 +29,7 @@ class SinusoidPositionRequestNode(Node):
         )
 
         self._target_pub = self.create_publisher(
-            JointTrajectory, "mobile_bimanual/joint_targets", 10
+            JointTrajectory, "mobile_bimanual/leader/joint_targets", 10
         )
 
     def _trajectory_timer_callback(self) -> None:
@@ -38,7 +37,7 @@ class SinusoidPositionRequestNode(Node):
         now = self.get_clock().now()
         time_s: float = (now - self._initialize_time).nanoseconds / 1e9
 
-        sine_val = 0.35 * np.sin(2.0 * np.pi * FUNCTION_FREQ_HZ * time_s)
+        sine_val = 0.25 * np.sin(2.0 * np.pi * FUNCTION_FREQ_HZ * time_s)
 
         msg: JointTrajectory = JointTrajectory()
         msg.header.stamp = now.to_msg()
@@ -66,11 +65,14 @@ class SinusoidPositionRequestNode(Node):
                 if sine_val >= 0.0:
                     msg.joint_names.append(joint)
                     point.positions.append(target_rad)
-
-            if joint in LEFT_ARM_JOINTS:
-                if sine_val <= 0.0:
+                else:
                     msg.joint_names.append(joint)
-                    point.positions.append(target_rad)
+                    point.positions.append(-target_rad)
+
+            # if joint in LEFT_ARM_JOINTS:
+            #     if sine_val <= 0.0:
+            #         msg.joint_names.append(joint)
+            #         point.positions.append(target_rad)
 
         point.time_from_start = Duration(
             sec=0, nanosec=int(1e9 / TRAJECTORY_GENERATOR_HZ)

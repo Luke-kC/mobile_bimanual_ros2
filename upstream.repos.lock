@@ -3,6 +3,10 @@ repositories:
     type: git
     url: https://github.com/enactic/openarm_description.git
     version: 1fba2cbc05001f05b4514120b70130b4ac06f409
+  openarm_mujoco:
+    type: git
+    url: https://github.com/enactic/openarm_mujoco.git
+    version: a8c979629f2591ad035d99d338ce114969e6cddc
   openarm_ros2:
     type: git
     url: https://github.com/enactic/openarm_ros2.git

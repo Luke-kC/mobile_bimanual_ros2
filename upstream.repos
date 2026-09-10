@@ -7,3 +7,7 @@ repositories:
     type: git
     url: https://github.com/enactic/openarm_description.git
     version: main
+  openarm_mujoco:
+    type: git
+    url: https://github.com/enactic/openarm_mujoco.git
+    version: master

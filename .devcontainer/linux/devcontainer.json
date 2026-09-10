@@ -3,7 +3,11 @@
 
     "build": {
         "dockerfile": "../Dockerfile",
-        "context": "../.."
+        "context": "../..",
+        "options": [
+            "--tag",
+            "mobile-bimanual-ros2-linux-dev:latest"
+        ]
     },
 
     "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
@@ -14,7 +18,12 @@
 
     "runArgs": [
         "--init",
-        "--network=host"
+        "--name=mobile-bimanual-ros2-linux",
+        "--network=host",
+        "--env=DISPLAY",
+        "--env=QT_X11_NO_MITSHM=1",
+        "--volume=/tmp/.X11-unix:/tmp/.X11-unix:rw",
+        "--device=/dev/dri"
     ],
 
     "containerEnv": {
@@ -22,6 +31,7 @@
     },
 
     "mounts": [
+        "source=${localEnv:HOME},target=/host-home,type=bind,readonly",
         "source=mobile-bimanual-build,target=/workspace/build,type=volume",
         "source=mobile-bimanual-install,target=/workspace/install,type=volume",
         "source=mobile-bimanual-log,target=/workspace/log,type=volume",

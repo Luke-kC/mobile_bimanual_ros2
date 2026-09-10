@@ -1,4 +1,3 @@
-
 # mobile_bimanual_ros2
 
 ROS 2 Jazzy workspace for a mobile bimanual manipulation platform.
@@ -6,6 +5,10 @@ ROS 2 Jazzy workspace for a mobile bimanual manipulation platform.
 ## Target architecture
 
 ```mermaid
+---
+config:
+  layout: elk
+---
 flowchart LR
     subgraph Leader["Leader side"]
         FAKE["Fake OpenArm<br/>development"]
@@ -247,6 +250,10 @@ Expected for each OpenArm bus:
 - no CAN-FD flag
 
 See [`docs/CAN20_OPENARM_ROS2.md`](docs/CAN20_OPENARM_ROS2.md).
+
+## If YAM meshes in Foxglove looks wrong
+
+See [`docs/YAM_MESH_TROUBLESHOOTING.md`](docs/YAM_MESH_TROUBLESHOOTING.md).
 
 ## Dependency locking
 

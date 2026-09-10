@@ -1,0 +1,61 @@
+{
+    "name": "Mobile Bimanual ROS 2 (Linux NVIDIA)",
+
+    "build": {
+        "dockerfile": "../Dockerfile",
+        "context": "../..",
+        "options": [
+            "--tag",
+            "mobile-bimanual-ros2-linux-nvidia-dev:latest"
+        ]
+    },
+
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+    "workspaceFolder": "/workspace",
+
+    "remoteUser": "ubuntu",
+    "updateRemoteUserUID": true,
+
+    "runArgs": [
+        "--init",
+        "--name=mobile-bimanual-ros2-linux-nvidia",
+        "--network=host",
+        "--env=DISPLAY",
+        "--env=QT_X11_NO_MITSHM=1",
+        "--env=NVIDIA_DRIVER_CAPABILITIES=all",
+        "--env=NVIDIA_VISIBLE_DEVICES=all",
+        "--volume=/tmp/.X11-unix:/tmp/.X11-unix:rw",
+        "--device=/dev/dri",
+        "--device=nvidia.com/gpu=all"
+    ],
+
+    "containerEnv": {
+        "RCUTILS_COLORIZED_OUTPUT": "1"
+    },
+
+    "mounts": [
+        "source=${localEnv:HOME},target=/host-home,type=bind,readonly",
+        "source=mobile-bimanual-build,target=/workspace/build,type=volume",
+        "source=mobile-bimanual-install,target=/workspace/install,type=volume",
+        "source=mobile-bimanual-log,target=/workspace/log,type=volume",
+        "source=mobile-bimanual-nvim-data,target=/home/ubuntu/.local/share/nvim,type=volume",
+        "source=mobile-bimanual-nvim-state,target=/home/ubuntu/.local/state/nvim,type=volume",
+        "source=mobile-bimanual-nvim-cache,target=/home/ubuntu/.cache/nvim,type=volume",
+        "source=mobile-bimanual-zsh-state,target=/home/ubuntu/.local/state/zsh,type=volume",
+        "source=mobile-bimanual-zsh-cache,target=/home/ubuntu/.cache/zsh,type=volume"
+    ],
+
+    "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-iot.vscode-ros",
+                "ms-python.python",
+                "charliermarsh.ruff",
+                "llvm-vs-code-extensions.vscode-clangd",
+                "ms-vscode.cmake-tools"
+            ]
+        }
+    }
+}

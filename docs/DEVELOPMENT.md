@@ -62,7 +62,7 @@ container before `scripts/dev` added the Neovim mount, recreate it once:
 ./scripts/dev rebuild
 ```
 
-## Zsh configuration
+## Zsh
 
 My personal machine has `$ZDOTDIR`, so when `$ZDOTDIR` exists on the host, `scripts/dev` bind-mounts it at
 `/home/ubuntu/.config/zsh`. If `ZDOTDIR` is unset, the launcher checks
@@ -78,6 +78,33 @@ The configuration is a live host mount, so edits or plugin updates made inside
 the container also affect the host configuration. Host-specific aliases that
 refer to paths such as `/home/{your_user_name}` or tools outside the container remain
 defined but will only work where those dependencies exist.
+
+## Tmux
+
+My personal machine has `tmux` installed. Tmux is a terminal multiplexer that runs, switches, and manages
+multiple terminal sessions, windows, and split panes inside a single screen or remote connection.
+
+Similar to Zsh, the devcontainer looks to see whether you already have a `.tmux.conf` file somewhere,
+then symlinks it into the container. If not, then `tmux` will just use its default config.
+
+The checking precedence is:
+
+1. Host `~/.tmux.conf` gets linked to container `~/.tmux.conf`
+2. Otherwise, host `~/.config/tmux/tmux.conf` gets linked to container `~/.config/tmux/tmux.conf`
+
+Your personal terminal emulator (like Ghostty) may already have pane-splitting functionality; however,
+splitting this way needs you to re-enter the devcontainer for each pane.
+
+With `tmux`, you simply need to enter the devcontainer once, then type `tmux` and start creating your layout.
+
+Because the container gets rebuilt/stops often, the `tmux` session may not always be there for you to re-attach.
+Therefore, `scripts/tmux-ros.sh` is provided to create a 2x2 grid through `tmux` with each pane properly sourced for ROS.
+
+Run this after entering the devcontainer:
+
+```zsh
+./scripts/tmux-ros.sh
+```
 
 ## Regular development
 
@@ -117,6 +144,86 @@ ros2 launch mobile_bimanual_bringup observability.launch.py
 Fake bringup does not start RViz by default, which keeps it usable in a
 headless container. `launch_rviz:=true` is available in a GUI-capable native
 environment.
+
+## Linux GUI forwarding
+
+The Linux devcontainer forwards the host X11 socket and `/dev/dri` so ROS GUI
+tools and MuJoCo windows can run from inside the container. This is Linux-only;
+macOS and Docker Desktop continue to use `.devcontainer/devcontainer.json`.
+
+Before creating or rebuilding the Linux container, allow local X11 clients on
+the host:
+
+```bash
+xhost +SI:localuser:$USER
+```
+
+Then recreate the container so Docker applies the GUI and GPU mounts:
+
+```bash
+./scripts/dev rebuild
+```
+
+Run GUI commands from a container shell:
+
+```bash
+./scripts/dev shell
+ros2 launch mujoco_ros2_control_demos 01_basic_robot.launch.py
+```
+
+NVIDIA Docker support is selected automatically when `scripts/dev` finds a
+working NVIDIA driver, `nvidia-ctk`, and a generated CDI GPU spec. After setting
+up the NVIDIA Container Toolkit/CDI on a desktop or laptop, rebuild normally:
+
+```bash
+./scripts/dev rebuild
+```
+
+On Ubuntu, if `apt` cannot find `nvidia-container-toolkit`, add NVIDIA's
+container toolkit apt repository first. The source line must reference the
+downloaded keyring; otherwise `apt update` can fail with `NO_PUBKEY` even when
+the key file exists:
+
+```bash
+sudo apt-get install -y curl ca-certificates gpg
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
+  | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+
+curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
+  | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' \
+  | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list >/dev/null
+
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit
+sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+nvidia-ctk cdi list
+```
+
+`nvidia-ctk cdi list` should include `nvidia.com/gpu=all`. Verify Docker can
+see the GPU before rebuilding the devcontainer:
+
+```bash
+docker run --rm --device=nvidia.com/gpu=all nvidia/cuda:12.6.0-base-ubuntu22.04 nvidia-smi
+```
+
+For troubleshooting, force the NVIDIA-specific config with:
+
+```bash
+DEVCONTAINER_NVIDIA=1 ./scripts/dev rebuild
+```
+
+Or force the standard Linux config with:
+
+```bash
+DEVCONTAINER_NVIDIA=0 ./scripts/dev rebuild
+```
+
+On hybrid laptops with an AMD integrated GPU and NVIDIA discrete GPU, the
+standard Linux container uses `/dev/dri`, which is usually the integrated GPU
+path. The NVIDIA-specific config also adds `--device=nvidia.com/gpu=all` and
+NVIDIA runtime environment variables. If container creation fails with `failed
+to discover GPU vendor from CDI`, use the standard Linux container or fix the
+host NVIDIA Container Toolkit setup.
 
 When the Dockerfile or devcontainer configuration changes:
 
@@ -165,7 +272,6 @@ Open more terminals with `./scripts/dev shell`, or use:
 ./scripts/dev nvim
 ```
 
-
 ## macOS
 
 Use `./scripts/dev up`, `./scripts/dev shell`, and `./scripts/dev nvim` for
@@ -173,7 +279,7 @@ editing, builds, tests, fake hardware, and Foxglove. Docker Desktop runs a
 Linux VM and does not expose macOS hardware as Linux SocketCAN interfaces, so
 direct `can0`/`can1` hardware operation is not supported.
 
-Hardware tests from a Mac is not really supported, since I don't have a Mac. I would suggest running on a lab laptop (if we have one) or from the Jetson when we eventually set that up. 
+Hardware tests from a Mac is not really supported, since I don't have a Mac. I would suggest running on a lab laptop (if we have one) or from the Jetson when we eventually set that up.
 
 ## Native-host fallback
 

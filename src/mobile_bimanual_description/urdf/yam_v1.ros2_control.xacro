@@ -1,0 +1,266 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="yam_v1">
+
+    <xacro:arg
+    name="mujoco_model"
+    default="$(find mobile_bimanual_description)/mujoco/yam_v1/yam_empty.xml"
+  />
+
+    <xacro:arg name="headless" default="false" />
+
+    <xacro:arg name="initial_keyframe" default="" />
+
+    <!-- ============================================================= -->
+    <!-- YAM kinematic chain                                           -->
+    <!-- ============================================================= -->
+
+    <link name="world" />
+
+    <link name="base">
+        <visual>
+            <origin
+        xyz="0.0374957408313106 0.0464006377298596 0.187501137731438"
+        rpy="0 1.5708 3.1415963267949"
+      />
+            <geometry>
+                <mesh
+          filename="package://mobile_bimanual_description/mujoco/yam_v1/assets/base.stl"
+          scale="1 1 1"
+        />
+            </geometry>
+            <material name="base_material">
+                <color rgba="0.317647 0.121569 0.498039 1" />
+            </material>
+        </visual>
+    </link>
+
+    <link name="link1">
+        <visual>
+            <origin xyz="-0.119501 -0.0464 -0.0374968" rpy="0 0 0" />
+            <geometry>
+                <mesh
+          filename="package://mobile_bimanual_description/mujoco/yam_v1/assets/link1.stl"
+          scale="1 1 1"
+        />
+            </geometry>
+            <material name="link1_material">
+                <color rgba="0.72549 0.45098 0.317647 1" />
+            </material>
+        </visual>
+    </link>
+
+    <link name="link2">
+        <visual>
+            <origin xyz="-0.0740001 -0.08025 -0.0174977" rpy="0 0 0" />
+            <geometry>
+                <mesh
+          filename="package://mobile_bimanual_description/mujoco/yam_v1/assets/link2.stl"
+          scale="1 1 1"
+        />
+            </geometry>
+            <material name="link2_material">
+                <color rgba="0 0.4 0.6 1" />
+            </material>
+        </visual>
+    </link>
+
+    <link name="link3">
+        <visual>
+            <origin xyz="-0.0740003 -0.0813 -0.281499" rpy="0 0 0" />
+            <geometry>
+                <mesh
+          filename="package://mobile_bimanual_description/mujoco/yam_v1/assets/link3.stl"
+          scale="1 1 1"
+        />
+            </geometry>
+            <material name="link3_material">
+                <color rgba="0.552941 0.580392 0.203922 1" />
+            </material>
+        </visual>
+    </link>
+
+    <link name="link4">
+        <visual>
+            <origin xyz="-0.0140003 -0.0125 -0.0364989" rpy="0 0 0" />
+            <geometry>
+                <mesh
+          filename="package://mobile_bimanual_description/mujoco/yam_v1/assets/link4.stl"
+          scale="1 1 1"
+        />
+            </geometry>
+            <material name="link4_material">
+                <color rgba="0.545098 0.52549 0.419608 1" />
+            </material>
+        </visual>
+    </link>
+
+    <link name="link5">
+        <visual>
+            <origin xyz="0.0265 -0.0463995 0.0375" rpy="0 0 0" />
+            <geometry>
+                <mesh
+          filename="package://mobile_bimanual_description/mujoco/yam_v1/assets/link5.stl"
+          scale="1 1 1"
+        />
+            </geometry>
+            <material name="link5_material">
+                <color rgba="0.827451 0.623529 0.784314 1" />
+            </material>
+        </visual>
+    </link>
+
+    <link name="gripper">
+        <visual>
+            <origin xyz="-0.014 -0.0463995 0.0731" rpy="0 0 0" />
+            <geometry>
+                <mesh
+          filename="package://mobile_bimanual_description/mujoco/yam_v1/assets/gripper.stl"
+          scale="1 1 1"
+        />
+            </geometry>
+            <material name="gripper_material">
+                <color rgba="0.109804 0.286275 0.0117647 1" />
+            </material>
+        </visual>
+    </link>
+
+    <joint name="workd_to_base_joint" type="fixed">
+        <parent link="world" />
+        <child link="base" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </joint>
+
+    <joint name="joint1" type="revolute">
+        <origin
+      xyz="-2.49777947129965e-07 -9.17402363407408e-13 0.0679999999995413"
+      rpy="0 1.5708 3.1415963267949"
+    />
+        <axis xyz="-1 0 0" />
+        <parent link="base" />
+        <child link="link1" />
+        <limit effort="1" velocity="1" lower="-2.61799" upper="3.14159" />
+    </joint>
+
+    <joint name="joint2" type="revolute">
+        <origin
+      xyz="-0.0455 -0.0339 -0.02"
+      rpy="-1.7953e-16 5.55112e-17 -3.14159"
+    />
+        <axis xyz="3.58252e-15 1 -3.2007e-16" />
+        <parent link="link1" />
+        <child link="link2" />
+        <limit effort="1" velocity="1" lower="-8.88178e-16" upper="3.66519" />
+    </joint>
+
+    <joint name="joint3" type="revolute">
+        <origin
+      xyz="4.08431e-07 -0.0688 0.264"
+      rpy="-2.99502e-14 -1.6015e-14 -3.14159"
+    />
+        <axis xyz="4.54273e-15 1 1.04275e-14" />
+        <parent link="link2" />
+        <child link="link3" />
+        <limit effort="1" velocity="1" lower="0" upper="3.14159" />
+    </joint>
+
+    <joint name="joint4" type="revolute">
+        <origin
+      xyz="-0.0600003 -0.0688 -0.244999"
+      rpy="2.95536e-14 8.52374e-14 -2.10585e-14"
+    />
+        <axis xyz="0 1 0" />
+        <parent link="link3" />
+        <child link="link4" />
+        <limit effort="1" velocity="1" lower="-1.69297" upper="1.5708" />
+    </joint>
+
+    <joint name="joint5" type="revolute">
+        <origin
+      xyz="-0.0405003 0.0338995 -0.0739989"
+      rpy="2.73264e-14 -4.32956e-16 -8.32667e-17"
+    />
+        <axis xyz="1 0 0" />
+        <parent link="link4" />
+        <child link="link5" />
+        <limit effort="1" velocity="1" lower="-1.5708" upper="1.5708" />
+    </joint>
+
+    <joint name="joint6" type="revolute">
+        <origin
+      xyz="0.0404996 2.39858e-07 -0.0356"
+      rpy="8.83309e-16 -5.88588e-16 7.69861e-14"
+    />
+        <axis xyz="1.46014e-15 2.40808e-14 -1" />
+        <parent link="link5" />
+        <child link="gripper" />
+        <limit effort="1" velocity="1" lower="-2.0944" upper="2.0944" />
+    </joint>
+
+    <!-- ============================================================= -->
+    <!-- ros2_control                                                  -->
+    <!-- ============================================================= -->
+
+    <ros2_control name="YamMujocoSystem" type="system">
+
+        <hardware>
+            <plugin>
+                mujoco_ros2_control/MujocoSystemInterface
+            </plugin>
+
+            <param name="mujoco_model">
+                $(arg mujoco_model)
+            </param>
+
+            <param name="headless">
+                $(arg headless)
+            </param>
+
+            <param name="initial_keyframe">
+                $(arg initial_keyframe)
+            </param>
+        </hardware>
+
+        <joint name="joint1">
+            <command_interface name="position" />
+            <state_interface name="position" />
+            <state_interface name="velocity" />
+            <state_interface name="effort" />
+        </joint>
+
+        <joint name="joint2">
+            <command_interface name="position" />
+            <state_interface name="position" />
+            <state_interface name="velocity" />
+            <state_interface name="effort" />
+        </joint>
+
+        <joint name="joint3">
+            <command_interface name="position" />
+            <state_interface name="position" />
+            <state_interface name="velocity" />
+            <state_interface name="effort" />
+        </joint>
+
+        <joint name="joint4">
+            <command_interface name="position" />
+            <state_interface name="position" />
+            <state_interface name="velocity" />
+            <state_interface name="effort" />
+        </joint>
+
+        <joint name="joint5">
+            <command_interface name="position" />
+            <state_interface name="position" />
+            <state_interface name="velocity" />
+            <state_interface name="effort" />
+        </joint>
+
+        <joint name="joint6">
+            <command_interface name="position" />
+            <state_interface name="position" />
+            <state_interface name="velocity" />
+            <state_interface name="effort" />
+        </joint>
+    </ros2_control>
+
+</robot>
