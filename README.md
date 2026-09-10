@@ -2,6 +2,52 @@
 
 ROS 2 Jazzy workspace for a mobile bimanual manipulation platform.
 
+## Current OpenArm -> MuJoCo Sim Launch Process
+
+Linux hardware with SocketCAN is required.
+
+First, bring up CAN0 and CAN1 on host (not from the devcontainer)
+
+```zsh
+./scripts/can_up.sh
+```
+
+Enter the devcontainer after doing CAN bring up on host.
+
+```zsh
+./scripts/dev shell
+```
+
+The devcontainer should build the packages, if not, then explicitly run the build script.
+
+```zsh
+./scripts/build.sh
+```
+
+Run the tmux-ros script to split terminal.
+
+```zsh
+./scripts/tmux-ros.sh
+```
+
+To bring up hardware OpenArm leader and MuJoCo sim OpenArm follower. Make sure headless is set to true, only use false if host GUI forwarding is set up correctly. Or else the sim wouldn't work.
+```zsh
+ros2 launch mobile_bimanual_bringup hardware_leader_sim_follower.launch.py headless:=true
+```
+
+This command also launches the local foxglove server, connect to it `ws://localhost:8765`
+
+After running that command, you should see the hardware OpenArm's motors turn green and move to their zero position.
+
+Wait until that sequence finishes, and that the motors turn red. This indicates that they have been disabled and can now be teleoped.
+
+Launch the joint mirror node:
+```zsh
+ros2 run mobile_bimanual_teleop openarm_joint_mirror_node
+```
+
+If you see `enabling mirroring...` in the terminal, then everything is ready to go. You can now physically move the OpenArm hardware, and the simulated follower should follow.
+
 ## Target architecture
 
 ```mermaid
