@@ -41,7 +41,7 @@ echo "=== Updating rosdep ==="
 rosdep update
 
 echo "=== Installing dependencies and building ==="
-./scripts/build.sh
+./scripts/build.sh --clean
 
 echo "=== Installing user development tools ==="
 

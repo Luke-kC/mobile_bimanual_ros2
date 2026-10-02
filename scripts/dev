@@ -6,6 +6,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEFAULT_CONFIG="$ROOT/.devcontainer/devcontainer.json"
 LINUX_CONFIG="$ROOT/.devcontainer/linux/devcontainer.json"
 LINUX_NVIDIA_CONFIG="$ROOT/.devcontainer/linux-nvidia/devcontainer.json"
+GENERATED_CONFIG_DIR="$ROOT/.devcontainer/.generated"
+PEDESTAL_DEVICE="/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0"
 HOST_ZDOTDIR="${ZDOTDIR:-$HOME/.config/zsh}"
 CONTAINER_ZDOTDIR="/home/ubuntu/.config/zsh"
 CONTAINER_TERM="${DEVCONTAINER_TERM:-xterm-256color}"
@@ -24,6 +26,10 @@ Commands:
 If ~/.config/nvim exists, it is bind-mounted into containers created by this
 script. If $ZDOTDIR (or ~/.config/zsh) exists, it is mounted and used by
 interactive shells. Editor data and shell history remain in Docker volumes.
+
+Environment:
+  DEVCONTAINER_NVIDIA=auto|1|0      Select NVIDIA devcontainer support.
+  DEVCONTAINER_PEDESTAL=auto|1|0    Select pedestal ESP32 passthrough.
 EOF
 }
 
@@ -35,20 +41,24 @@ require_command() {
 }
 
 config_file() {
+    local config
+    local pedestal
+
     if [[ "$(uname -s)" == "Linux" ]]; then
+        pedestal="$(pedestal_enabled)"
+
         case "${DEVCONTAINER_NVIDIA:-auto}" in
             1|true|yes|on)
-                printf '%s\n' "$LINUX_NVIDIA_CONFIG"
-                return
+                config="$LINUX_NVIDIA_CONFIG"
                 ;;
             0|false|no|off)
-                printf '%s\n' "$LINUX_CONFIG"
-                return
+                config="$LINUX_CONFIG"
                 ;;
             auto)
                 if nvidia_cdi_available; then
-                    printf '%s\n' "$LINUX_NVIDIA_CONFIG"
-                    return
+                    config="$LINUX_NVIDIA_CONFIG"
+                else
+                    config="$LINUX_CONFIG"
                 fi
                 ;;
             *)
@@ -57,10 +67,73 @@ config_file() {
                 ;;
         esac
 
-        printf '%s\n' "$LINUX_CONFIG"
+        if [[ "$pedestal" == "1" ]]; then
+            generated_config_file "$config"
+        else
+            printf '%s\n' "$config"
+        fi
     else
         printf '%s\n' "$DEFAULT_CONFIG"
     fi
+}
+
+pedestal_enabled() {
+    case "${DEVCONTAINER_PEDESTAL:-auto}" in
+        1|true|yes|on)
+            if [[ ! -e "$PEDESTAL_DEVICE" ]]; then
+                printf 'Pedestal ESP32 device not found: %s\n' "$PEDESTAL_DEVICE" >&2
+                exit 2
+            fi
+            printf '1\n'
+            ;;
+        0|false|no|off)
+            printf '0\n'
+            ;;
+        auto)
+            if [[ -e "$PEDESTAL_DEVICE" ]]; then
+                printf '1\n'
+            else
+                printf '0\n'
+            fi
+            ;;
+        *)
+            printf 'Invalid DEVCONTAINER_PEDESTAL value: %s\n' "$DEVCONTAINER_PEDESTAL" >&2
+            exit 2
+            ;;
+    esac
+}
+
+generated_config_file() {
+    local config="$1"
+    local output_dir="$GENERATED_CONFIG_DIR/$(basename "$(dirname "$config")")-pedestal"
+    local output="$output_dir/devcontainer.json"
+
+    require_command python3
+    mkdir -p "$output_dir"
+    python3 - "$config" "$output" "$ROOT" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+source, output, root = sys.argv[1:]
+device = "--device=/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0:/dev/pedestal"
+
+with open(source, encoding="utf-8") as f:
+    config = json.load(f)
+
+run_args = config.setdefault("runArgs", [])
+if device not in run_args:
+    run_args.append(device)
+
+build = config.setdefault("build", {})
+build["dockerfile"] = str(Path(root) / ".devcontainer" / "Dockerfile")
+build["context"] = root
+
+with open(output, "w", encoding="utf-8") as f:
+    json.dump(config, f, indent=4)
+    f.write("\n")
+PY
+    printf '%s\n' "$output"
 }
 
 nvidia_cdi_available() {
@@ -173,15 +246,21 @@ exec_nvim() {
 }
 
 stop_containers() {
-    local ids
+    local all_ids
+    local running_ids
 
-    ids="$(docker ps -q --filter "label=devcontainer.local_folder=$ROOT")"
-    if [[ -z "$ids" ]]; then
-        echo "No running devcontainers found for $ROOT"
+    all_ids="$(docker ps -aq --filter "label=devcontainer.local_folder=$ROOT")"
+    if [[ -z "$all_ids" ]]; then
+        echo "No devcontainers found for $ROOT"
         return
     fi
 
-    docker stop $ids
+    running_ids="$(docker ps -q --filter "label=devcontainer.local_folder=$ROOT")"
+    if [[ -n "$running_ids" ]]; then
+        docker stop $running_ids
+    fi
+
+    docker rm $all_ids
 }
 
 require_command docker

@@ -17,6 +17,8 @@ extra-paths = [
     "src/mobile_bimanual_description",
     "src/mobile_bimanual_sim",
     "src/mobile_bimanual_teleop",
+    "src/mobile_bimanual_hardware",
+    "tools/",
 ]
 
 [tool.basedpyright]
@@ -28,6 +30,8 @@ extraPaths = [
     "src/mobile_bimanual_description",
     "src/mobile_bimanual_sim",
     "src/mobile_bimanual_teleop",
+    "src/mobile_bimanual_hardware",
+    "tools/",
 ]
 
 typeCheckingMode = "basic"

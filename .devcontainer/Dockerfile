@@ -59,6 +59,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     npm \
     tmux \
     unzip \
+    python3-serial \
     && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m pip install \
@@ -92,6 +93,12 @@ RUN add-apt-repository -y ppa:openarm/main \
 # ---------------------------------------------------------------------------
 
 RUN usermod --shell /usr/bin/zsh "${USERNAME}" \
+    && echo "${USERNAME} ALL=(root) NOPASSWD:ALL" \
+        > "/etc/sudoers.d/${USERNAME}" \
+    && chmod 0440 "/etc/sudoers.d/${USERNAME}"
+
+RUN usermod --shell /usr/bin/zsh "${USERNAME}" \
+    && usermod -aG dialout "${USERNAME}" \
     && echo "${USERNAME} ALL=(root) NOPASSWD:ALL" \
         > "/etc/sudoers.d/${USERNAME}" \
     && chmod 0440 "/etc/sudoers.d/${USERNAME}"

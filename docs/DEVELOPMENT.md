@@ -308,5 +308,6 @@ the same checkout.
 ./scripts/dev stop
 ```
 
-`stop` stops devcontainers belonging to the current checkout. Docker volumes
-remain available for the next start.
+`stop` stops and removes devcontainers belonging to the current checkout, which
+frees their Docker names for the next start. Docker volumes remain available for
+the next start.

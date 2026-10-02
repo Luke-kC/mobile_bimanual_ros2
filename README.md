@@ -148,6 +148,30 @@ On Linux, `scripts/dev` selects the Linux devcontainer configuration, which uses
 host networking so ROS nodes can access SocketCAN interfaces such as `can0` and
 `can1`.
 
+The pedestal ESP32 is optional when creating the devcontainer. To work without
+the pedestal attached, leave it unplugged and run the normal workflow:
+
+```bash
+./scripts/dev up
+./scripts/dev shell
+```
+
+To work with the pedestal, plug the ESP32 into the host before creating or
+recreating the container. `scripts/dev` detects
+`/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0` and maps it inside the
+container as `/dev/pedestal`:
+
+```bash
+./scripts/dev rebuild
+./scripts/dev shell
+ls -l /dev/pedestal
+```
+
+If the ESP32 is plugged in after the container is already running, recreate the
+container with `./scripts/dev rebuild` so Docker applies the device passthrough.
+To require the pedestal and fail clearly when it is missing, use
+`DEVCONTAINER_PEDESTAL=1 ./scripts/dev rebuild`.
+
 See [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for the full workflow,
 macOS limitations, container lifecycle, editor configuration, and the native
 fallback.
