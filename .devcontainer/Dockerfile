@@ -43,6 +43,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-jazzy-mujoco-ros2-control \
     ros-jazzy-mujoco-ros2-control-demos \
     ros-jazzy-tf2-tools \
+    ros-jazzy-joint-state-publisher-gui \
     ros-jazzy-rqt-graph \
     can-utils \
     iproute2 \
