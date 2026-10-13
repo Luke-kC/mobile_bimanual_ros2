@@ -1,8 +1,11 @@
-from launch import LaunchDescription
+from launch import LaunchDescription, condition
+from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
 from launch_ros.actions import Node
 from launch.substitutions import (
     Command,
     FindExecutable,
+    LaunchConfiguration,
     PathJoinSubstitution,
 )
 from launch_ros.parameter_descriptions import ParameterValue
@@ -10,6 +13,19 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+
+    use_gui_argument = DeclareLaunchArgument(
+        "use_gui",
+        default_value="true",
+        description="Enable manual joint-state GUI for model testing.",
+    )
+
+    joint_states_topic_argument = DeclareLaunchArgument(
+        "joint_states_topic",
+        default_value="/joint_states",
+        description="Sets the topic that robot_state_publisher subscribes to.",
+    )
+
     pedestal_openarm_xacro = PathJoinSubstitution(
         [
             FindPackageShare("mobile_bimanual_description"),
@@ -47,6 +63,9 @@ def generate_launch_description():
         parameters=[
             robot_description_parameter,
         ],
+        remappings=[
+            ("/joint_states", LaunchConfiguration("joint_states_topic")),
+        ],
         output="screen",
     )
 
@@ -54,6 +73,7 @@ def generate_launch_description():
         package="joint_state_publisher_gui",
         executable="joint_state_publisher_gui",
         output="screen",
+        condition=IfCondition(LaunchConfiguration("use_gui")),
     )
 
     rviz_node = Node(
@@ -64,6 +84,8 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            use_gui_argument,
+            joint_states_topic_argument,
             robot_state_publisher_node,
             joint_state_publisher_gui,
             rviz_node,

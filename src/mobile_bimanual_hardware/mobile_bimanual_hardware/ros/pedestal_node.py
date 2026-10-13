@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import time
 
 import rclpy
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
@@ -22,12 +23,35 @@ class PedestalNode(Node):
         self.declare_parameter("port", "/dev/pedestal")
         self.declare_parameter("publish_rate_hz", 20.0)
         self.declare_parameter("joint_name", "pedestal_joint")
+        self.declare_parameter("telem_timeout_s", 0.3)
+        self.declare_parameter("position_filter_tau_s", 0.25)
 
         port = str(self.get_parameter("port").value)
         publish_rate_hz = float(self.get_parameter("publish_rate_hz").value)
 
+        self._telem_timeout_s = float(
+            self.get_parameter("telem_timeout_s").value
+        )
+        self._position_filter_tau_s = float(
+            self.get_parameter("position_filter_tau_s").value
+        )
+
+        if (
+            not math.isfinite(self._telem_timeout_s)
+            or self._telem_timeout_s <= 0.0
+        ):
+            raise ValueError("telem_timeout_s must be finite and positive")
+
         if publish_rate_hz <= 0.0:
             raise ValueError("publish_rate_hz must be positive")
+
+        if (
+            not math.isfinite(self._position_filter_tau_s)
+            or self._position_filter_tau_s < 0.0
+        ):
+            raise ValueError(
+                "position_filter_tau_s must be finite and non-negative"
+            )
 
         self._joint_name = str(self.get_parameter("joint_name").value)
 
@@ -37,6 +61,8 @@ class PedestalNode(Node):
 
         self._last_telemetry_time_sec: float | None = None
         self._last_event: str | None = None
+        self._filtered_position_m: float | None = None
+        self._last_filter_time_sec: float | None = None
 
         self._command_callback_group = MutuallyExclusiveCallbackGroup()
         self._telemetry_callback_group = MutuallyExclusiveCallbackGroup()
@@ -67,6 +93,12 @@ class PedestalNode(Node):
         self._position_pub = self.create_publisher(
             Float64,
             "/pedestal/position",
+            qos_profile_sensor_data,
+        )
+
+        self._validity_pub = self.create_publisher(
+            Bool,
+            "/pedestal/position_valid",
             qos_profile_sensor_data,
         )
 
@@ -157,7 +189,23 @@ class PedestalNode(Node):
 
         telemetry = self._pedestal.latest_telemetry
 
-        if telemetry is None:
+        position_valid = False
+        telemetry_fresh = False
+
+        if telemetry is not None:
+            telemetry_age_s = time.monotonic() - telemetry.received_time_sec
+
+            telemetry_fresh = 0.0 <= telemetry_age_s < self._telem_timeout_s
+
+            position_valid = (
+                telemetry_fresh and telemetry.position_m is not None
+            )
+
+        validity_msg = Bool()
+        validity_msg.data = position_valid
+        self._validity_pub.publish(validity_msg)
+
+        if telemetry is None or not telemetry_fresh:
             return
 
         if self._last_telemetry_time_sec == telemetry.received_time_sec:
@@ -168,14 +216,19 @@ class PedestalNode(Node):
         stamp = self.get_clock().now().to_msg()
 
         if telemetry.position_m is not None:
+            filtered_position_m = self._filter_position(
+                telemetry.position_m,
+                telemetry.received_time_sec,
+            )
+
             position_msg = Float64()
-            position_msg.data = telemetry.position_m
+            position_msg.data = filtered_position_m
             self._position_pub.publish(position_msg)
 
             joint_state_msg = JointState()
             joint_state_msg.header.stamp = stamp
             joint_state_msg.name = [self._joint_name]
-            joint_state_msg.position = [telemetry.position_m]
+            joint_state_msg.position = [filtered_position_m]
             self._joint_state_pub.publish(joint_state_msg)
 
         if telemetry.sensor_voltage_v is not None:
@@ -194,6 +247,37 @@ class PedestalNode(Node):
         unlocked_msg = Bool()
         unlocked_msg.data = telemetry.unlocked
         self._unlocked_pub.publish(unlocked_msg)
+
+    def _filter_position(
+        self,
+        raw_position_m: float,
+        sample_time_sec: float,
+    ) -> float:
+        if self._position_filter_tau_s == 0.0:
+            self._filtered_position_m = raw_position_m
+            self._last_filter_time_sec = sample_time_sec
+            return raw_position_m
+
+        if (
+            self._filtered_position_m is None
+            or self._last_filter_time_sec is None
+        ):
+            self._filtered_position_m = raw_position_m
+            self._last_filter_time_sec = sample_time_sec
+            return raw_position_m
+
+        dt_s = sample_time_sec - self._last_filter_time_sec
+        self._last_filter_time_sec = sample_time_sec
+
+        if dt_s <= 0.0:
+            return self._filtered_position_m
+
+        alpha = dt_s / (self._position_filter_tau_s + dt_s)
+        self._filtered_position_m += alpha * (
+            raw_position_m - self._filtered_position_m
+        )
+
+        return self._filtered_position_m
 
     def _log_new_event(self) -> None:
         event = self._pedestal.last_event

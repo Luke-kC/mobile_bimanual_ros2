@@ -1,0 +1,23 @@
+diff --git a/openarm_bringup/launch/openarm.bimanual.launch.py b/openarm_bringup/launch/openarm.bimanual.launch.py
+--- a/openarm_bringup/launch/openarm.bimanual.launch.py
++++ b/openarm_bringup/launch/openarm.bimanual.launch.py
+@@ -112,6 +112,7 @@ def robot_nodes_spawner(context: LaunchContext, description_package, description
+         output="screen",
+         namespace=namespace,
+         parameters=[robot_description_param],
++        condition=IfCondition(LaunchConfiguration("launch_rsp")),
+     )
+ 
+     control_node = Node(
+@@ -215,6 +216,11 @@ def generate_launch_description():
+             default_value="true",
+             description="Start RViz with the OpenArm configuration.",
+         ),
++        DeclareLaunchArgument(
++            "launch_rsp",
++            default_value="true",
++            description="Launch the OpenArm robot_state_publisher.",
++        ),
+     ]
+ 
+     description_package = LaunchConfiguration("description_package")

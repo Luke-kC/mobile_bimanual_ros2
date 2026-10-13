@@ -45,6 +45,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-jazzy-tf2-tools \
     ros-jazzy-joint-state-publisher-gui \
     ros-jazzy-rqt-graph \
+    ros-jazzy-topic-tools \
     can-utils \
     iproute2 \
     bat \
