@@ -1,0 +1,8 @@
+# PEAK PCAN-USB Pro FD: right arm, channel 0
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="can*", ATTRS{idVendor}=="0c72", ATTRS{idProduct}=="0011", ATTR{dev_id}=="0x0", ENV{MB_CAN_ROLE}="arm_r"
+
+# PEAK PCAN-USB Pro FD: left arm, channel 1
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="can*", ATTRS{idVendor}=="0c72", ATTRS{idProduct}=="0011", ATTR{dev_id}=="0x1", ENV{MB_CAN_ROLE}="arm_l"
+
+# candleLight adapter: Tracer
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="can*", ENV{ID_SERIAL}=="bytewerk_candleLight_USB_to_CAN_adapter_004F00335343571220363330", ENV{MB_CAN_ROLE}="tracer"

@@ -7,19 +7,19 @@ CLEAN_FIRST=0
 
 while (($# > 0)); do
     case "$1" in
-        --clean | --clean-first)
-            CLEAN_FIRST=1
-            ;;
-        -h | --help)
-            echo "Usage: $0 [--clean]"
-            echo
-            echo "  --clean, --clean-first  Remove build/install/log before building"
-            exit 0
-            ;;
-        *)
-            echo "Unknown argument: $1" >&2
-            exit 2
-            ;;
+    --clean | --clean-first)
+        CLEAN_FIRST=1
+        ;;
+    -h | --help)
+        echo "Usage: $0 [--clean]"
+        echo
+        echo "  --clean, --clean-first  Remove build/install/log before building"
+        exit 0
+        ;;
+    *)
+        echo "Unknown argument: $1" >&2
+        exit 2
+        ;;
     esac
     shift
 done
@@ -48,6 +48,9 @@ PROJECT_PATHS=(
     src/openarm_description
     src/openarm_ros2/openarm_hardware
     src/openarm_ros2/openarm_bringup
+    src/tracer_ros2/tracer_base
+    src/tracer_ros2/tracer_msgs
+    src/ugv_sdk
 )
 
 SKIP_ROSDEP_KEYS=(
@@ -80,7 +83,10 @@ colcon build \
     mobile_bimanual_description \
     mobile_bimanual_sim \
     mobile_bimanual_teleop \
-    mobile_bimanual_hardware
+    mobile_bimanual_hardware \
+    ugv_sdk \
+    tracer_msgs \
+    tracer_base
 
 shopt -s nullglob
 compile_databases=("$ROOT"/build/*/compile_commands.json)

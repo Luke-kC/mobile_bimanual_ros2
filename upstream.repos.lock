@@ -11,3 +11,11 @@ repositories:
     type: git
     url: https://github.com/enactic/openarm_ros2.git
     version: 4e837e1d0dae692ff67b560b69d8d281d7a8d4ed
+  tracer_ros2:
+    type: git
+    url: https://github.com/agilexrobotics/tracer_ros2.git
+    version: 2c4938db6dadfa90054d385d9a21d86f7459222c
+  ugv_sdk:
+    type: git
+    url: https://github.com/agilexrobotics/ugv_sdk.git
+    version: f2704eacdc90357078cd93ec60aae08bb4baab35

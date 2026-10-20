@@ -1,0 +1,6 @@
+[Match]
+Property=MB_CAN_ROLE=tracer
+
+[Link]
+NamePolicy=
+Name=can_tracer

@@ -11,3 +11,12 @@ repositories:
     type: git
     url: https://github.com/enactic/openarm_mujoco.git
     version: master
+  tracer_ros2:
+    type: git
+    url: https://github.com/agilexrobotics/tracer_ros2.git
+    version: jazzy
+  ugv_sdk:
+    type: git
+    url: https://github.com/agilexrobotics/ugv_sdk.git
+    version: main
+

@@ -1,6 +1,9 @@
 from launch import LaunchDescription
-from launch.substitutions import LaunchConfiguration
-from launch.actions import GroupAction, IncludeLaunchDescription
+from launch.actions import (
+    DeclareLaunchArgument,
+    GroupAction,
+    IncludeLaunchDescription,
+)
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     Command,
@@ -8,10 +11,9 @@ from launch.substitutions import (
     LaunchConfiguration,
     PathJoinSubstitution,
 )
-from launch_ros.actions import SetRemap, Node
-from launch_ros.substitutions import FindPackageShare
-from launch.actions import DeclareLaunchArgument
+from launch_ros.actions import Node, SetRemap
 from launch_ros.parameter_descriptions import ParameterValue
+from launch_ros.substitutions import FindPackageShare
 
 
 def generate_pedestal_launch_description():
@@ -71,6 +73,12 @@ def generate_launch_description():
         description="Use fake OpenArm hardware.",
     )
 
+    description_file_argument = DeclareLaunchArgument(
+        "description_file",
+        default_value="pedestal_openarm.urdf.xacro",
+        description="Robot description Xacro filename.",
+    )
+
     openarm_launch_path = PathJoinSubstitution(
         [
             FindPackageShare("openarm_bringup"),
@@ -87,8 +95,8 @@ def generate_launch_description():
             "arm_type": "v1.0",
             "use_fake_hardware": LaunchConfiguration("use_fake_hardware"),
             "robot_controller": "forward_position_controller",
-            "right_can_interface": "can0",
-            "left_can_interface": "can1",
+            "right_can_interface": "can_arm_r",
+            "left_can_interface": "can_arm_l",
             "arm_prefix": "leader",
             "runtime_config_package": "mobile_bimanual_bringup",
             "controllers_file": "openarm_leader_controllers.yaml",
@@ -135,31 +143,31 @@ def generate_launch_description():
         output="screen",
     )
 
-    pedestal_openarm_xacro = PathJoinSubstitution(
+    robot_xacro = PathJoinSubstitution(
         [
             FindPackageShare("mobile_bimanual_description"),
             "urdf",
-            "pedestal_openarm.urdf.xacro",
+            LaunchConfiguration("description_file"),
         ]
     )
 
-    pedestal_openarm_description_content = Command(
+    robot_description_content = Command(
         [
             FindExecutable(name="xacro"),
             " ",
-            pedestal_openarm_xacro,
+            robot_xacro,
             " ros2_control:=true",
             " use_fake_hardware:=",
             LaunchConfiguration("use_fake_hardware"),
-            " left_can_interface:=can1",
-            " right_can_interface:=can0",
+            " left_can_interface:=can_arm_l",
+            " right_can_interface:=can_arm_r",
             " can_fd:=false",
         ]
     )
 
     robot_description_parameter = {
         "robot_description": ParameterValue(
-            pedestal_openarm_description_content,
+            robot_description_content,
             value_type=str,
         )
     }
@@ -202,6 +210,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             use_fake_hardware_argument,
+            description_file_argument,
             openarm_group,
             *pedestal_launch_description,
             openarm_joint_state_relay,

@@ -1,0 +1,6 @@
+[Match]
+Property=MB_CAN_ROLE=arm_l
+
+[Link]
+NamePolicy=
+Name=can_arm_l

@@ -8,10 +8,8 @@ Panels:
         - /Status1
         - /Grid1
         - /RobotModel1
-        - /RobotModel1/Status1
         - /RobotModel1/Description Topic1
         - /TF1
-        - /TF1/Status1
       Splitter Ratio: 0.5
     Tree Height: 787
   - Class: rviz_common/Selection
@@ -71,6 +69,11 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         openarm_body_link0:
           Alpha: 1
           Show Axes: false
@@ -219,23 +222,59 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
+        base_link:
+          Value: true
+        odom:
+          Value: true
         openarm_body_link0:
           Value: true
         openarm_left_hand:
           Value: true
         openarm_left_hand_tcp:
           Value: true
+        openarm_left_left_finger:
+          Value: true
         openarm_left_link0:
           Value: true
+        openarm_left_link1:
+          Value: true
+        openarm_left_link2:
+          Value: true
+        openarm_left_link3:
+          Value: true
+        openarm_left_link4:
+          Value: true
+        openarm_left_link5:
+          Value: true
+        openarm_left_link6:
+          Value: true
         openarm_left_link7:
+          Value: true
+        openarm_left_right_finger:
           Value: true
         openarm_right_hand:
           Value: true
         openarm_right_hand_tcp:
           Value: true
+        openarm_right_left_finger:
+          Value: true
         openarm_right_link0:
           Value: true
+        openarm_right_link1:
+          Value: true
+        openarm_right_link2:
+          Value: true
+        openarm_right_link3:
+          Value: true
+        openarm_right_link4:
+          Value: true
+        openarm_right_link5:
+          Value: true
+        openarm_right_link6:
+          Value: true
         openarm_right_link7:
+          Value: true
+        openarm_right_right_finger:
           Value: true
         pedestal_base_link:
           Value: true
@@ -247,19 +286,47 @@ Visualization Manager:
       Show Axes: true
       Show Names: false
       Tree:
-        pedestal_base_link:
-          pedestal_top_link:
-            openarm_body_link0:
-              openarm_left_link0:
-                {}
-              openarm_right_link0:
-                {}
+        odom:
+          base_link:
+            pedestal_base_link:
+              pedestal_top_link:
+                openarm_body_link0:
+                  openarm_left_link0:
+                    openarm_left_link1:
+                      openarm_left_link2:
+                        openarm_left_link3:
+                          openarm_left_link4:
+                            openarm_left_link5:
+                              openarm_left_link6:
+                                openarm_left_link7:
+                                  openarm_left_hand:
+                                    openarm_left_hand_tcp:
+                                      {}
+                                  openarm_left_left_finger:
+                                    {}
+                                  openarm_left_right_finger:
+                                    {}
+                  openarm_right_link0:
+                    openarm_right_link1:
+                      openarm_right_link2:
+                        openarm_right_link3:
+                          openarm_right_link4:
+                            openarm_right_link5:
+                              openarm_right_link6:
+                                openarm_right_link7:
+                                  openarm_right_hand:
+                                    openarm_right_hand_tcp:
+                                      {}
+                                  openarm_right_left_finger:
+                                    {}
+                                  openarm_right_right_finger:
+                                    {}
       Update Interval: 0
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: pedestal_base_link
+    Fixed Frame: odom
     Frame Rate: 30
   Name: root
   Tools:
@@ -317,10 +384,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.41539931297302246
+      Pitch: 0.38039925694465637
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.603572368621826
+      Yaw: 5.673573970794678
     Saved: ~
 Window Geometry:
   Displays:
@@ -338,5 +405,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1396
-  X: 60
-  Y: 60
+  X: 808
+  Y: 179

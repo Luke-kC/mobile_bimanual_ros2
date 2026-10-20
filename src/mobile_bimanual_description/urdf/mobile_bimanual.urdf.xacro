@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="mobile_bimanual">
+
+    <xacro:include filename="pedestal_openarm.urdf.xacro" />
+
+    <!-- Tracer chassis -->
+    <link name="base_link">
+        <visual>
+            <!-- Base frame is at ground level -->
+            <origin xyz="0 0 0.0775" rpy="0 0 0" />
+
+            <geometry>
+                <box size="0.685 0.570 0.155" />
+            </geometry>
+
+            <material name="gray">
+                <color rgba="0.3 0.3 0.3 1.0" />
+            </material>
+        </visual>
+    </link>
+
+    <!-- Pedestal mounting point -->
+    <joint name="tracer_pedestal_mount_joint" type="fixed">
+        <parent link="base_link" />
+        <child link="pedestal_base_link" />
+        <origin xyz="0.135 0 0.155" rpy="0 0 0" />
+    </joint>
+
+</robot>
