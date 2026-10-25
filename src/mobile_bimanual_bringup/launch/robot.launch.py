@@ -3,6 +3,7 @@ from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
@@ -32,21 +33,27 @@ def generate_launch_description():
     )
 
     # AgileX Tracer bringup
-    tracer_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [
-                    FindPackageShare("tracer_base"),
-                    "launch",
-                    "tracer_base.launch.py",
-                ]
-            )
-        ),
-        launch_arguments={
+    tracer_launch = Node(
+        package="tracer_base",
+        executable="tracer_base_node",
+        output="screen",
+        parameters=[{
             "port_name": LaunchConfiguration("tracer_can_interface"),
-            "odom_frame": "odom",
-            "base_frame": "base_link",
-        }.items(),
+            # Foxglove may discover all TFMessage topics, including raw_tf.
+            # Keep raw frames disconnected from the filtered robot TF tree.
+            "odom_frame": "tracer_raw_odom",
+            "base_frame": "tracer_raw_base_link",
+            "odom_topic_name": "/odom/raw",
+        }],
+        remappings=[("/tf", "/tracer/raw_tf")],
+    )
+    filtered_odometry = Node(
+        package="mobile_bimanual_bringup",
+        executable="filtered_odometry",
+        output="screen",
+        parameters=[PathJoinSubstitution([
+            FindPackageShare("mobile_bimanual_bringup"), "config", "odometry_filter.yaml",
+        ])],
     )
 
     return LaunchDescription(
@@ -59,5 +66,6 @@ def generate_launch_description():
             tracer_can_interface_argument,
             pedestal_openarm_launch,
             tracer_launch,
+            filtered_odometry,
         ]
     )

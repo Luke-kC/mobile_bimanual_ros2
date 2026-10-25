@@ -1,0 +1,14 @@
+filtered_odometry:
+  ros__parameters:
+    # Conservative low-speed limits
+    max_linear_speed: 2.0
+    max_angular_speed: 3.0
+    # Zero disables acceleration rejection for noisy chassis feedback.
+    max_linear_acceleration: 0.0
+    max_angular_acceleration: 0.0
+    max_hold_time: 0.1
+    feedback_timeout: 0.2
+    linear_stop_threshold: 0.01
+    angular_stop_threshold: 0.03
+    odom_frame: odom
+    base_frame: base_link

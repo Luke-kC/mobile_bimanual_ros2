@@ -16,6 +16,7 @@ setup(
         ),
         ("share/" + package_name, ["package.xml"]),
         ("share/" + package_name + "/launch", glob("launch/*.launch.py")),
+        ("share/" + package_name + "/config", glob("config/*.yaml")),
         (
             os.path.join("share", package_name, "config", "controllers"),
             glob("config/controllers/*.yaml"),
@@ -27,4 +28,9 @@ setup(
     maintainer_email="maintainer@example.com",
     description="Bringup and observability for a mobile bimanual robot.",
     license="Apache-2.0",
+    entry_points={
+        "console_scripts": [
+            "filtered_odometry = mobile_bimanual_bringup.filtered_odometry:main",
+        ],
+    },
 )
