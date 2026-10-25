@@ -11,8 +11,8 @@ find_package(builtin_interfaces REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(
-  ${PROJECT_NAME} "msg/RobotStatus.msg" "msg/CommandStatus.msg" DEPENDENCIES
-  builtin_interfaces)
+  ${PROJECT_NAME} "msg/RobotStatus.msg" "msg/CommandStatus.msg"
+  "srv/SetOperatingMode.srv" DEPENDENCIES builtin_interfaces)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

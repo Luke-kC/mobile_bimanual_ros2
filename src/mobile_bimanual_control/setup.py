@@ -34,6 +34,7 @@ setup(
             "named_joint_state_publisher = mobile_bimanual_control.ros.named_joint_state_publisher_node:main",
             "supervisor = mobile_bimanual_control.ros.supervisor_node:main",
             "openarm_joint_watcher_node = mobile_bimanual_control.ros.openarm_joint_watcher_node:main",
+            "command_gate = mobile_bimanual_control.ros.command_gate_node:main",
         ],
     },
 )
