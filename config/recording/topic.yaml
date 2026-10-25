@@ -1,0 +1,128 @@
+schema_version: 1
+# required: must exist at startup and contain messages in the resulting bag.
+# optional: recorded when advertised, but absence does not fail validation.
+# expected_hz is a guideline; min_hz is the initial loose post-capture threshold.
+topics:
+  /leader/joint_states:
+    type: sensor_msgs/msg/JointState
+    required: true
+    min_hz: 5
+    joints: [openarm_left_joint1, openarm_left_joint2, openarm_left_joint3, openarm_left_joint4, openarm_left_joint5, openarm_left_joint6, openarm_left_joint7, openarm_right_joint1, openarm_right_joint2, openarm_right_joint3, openarm_right_joint4, openarm_right_joint5, openarm_right_joint6, openarm_right_joint7]
+  /pedestal/joint_states:
+    type: sensor_msgs/msg/JointState
+    required: true
+    min_hz: 5
+    joints: [pedestal_joint]
+  /pedestal/position:
+    type: std_msgs/msg/Float64
+    required: true
+    min_hz: 5
+    units: m
+  /pedestal/position_valid:
+    type: std_msgs/msg/Bool
+    required: true
+    min_hz: 5
+  /pedestal/task_state:
+    type: std_msgs/msg/String
+    required: true
+    min_hz: 5
+  /pedestal/goal_active:
+    type: std_msgs/msg/Bool
+    required: true
+    min_hz: 5
+  /pedestal/unlocked:
+    type: std_msgs/msg/Bool
+    required: true
+    min_hz: 5
+  /odom:
+    type: nav_msgs/msg/Odometry
+    required: true
+    min_hz: 5
+  /odom/raw:
+    type: nav_msgs/msg/Odometry
+    required: true
+    min_hz: 5
+  /tracer_status:
+    type: tracer_msgs/msg/TracerStatus
+    required: true
+    min_hz: 5
+  /tf:
+    type: tf2_msgs/msg/TFMessage
+    required: true
+  /tf_static:
+    type: tf2_msgs/msg/TFMessage
+    required: false
+  /robot_description:
+    type: std_msgs/msg/String
+    required: false
+  /joint_states:
+    type: sensor_msgs/msg/JointState
+    required: false
+  /dynamic_joint_states:
+    type: control_msgs/msg/DynamicJointState
+    required: false
+  /odom/filter_status:
+    type: std_msgs/msg/String
+    required: false
+  /pedestal/sensor_voltage:
+    type: std_msgs/msg/Float64
+    required: false
+  /pedestal/position_target:
+    type: std_msgs/msg/Float64
+    required: false
+    role: requested_command
+  /hardware/pedestal/position_target:
+    type: std_msgs/msg/Float64
+    required: false
+    role: authorized_command
+  /cmd_vel:
+    type: geometry_msgs/msg/Twist
+    required: false
+    role: requested_command
+  /hardware/cmd_vel:
+    type: geometry_msgs/msg/Twist
+    required: false
+    role: authorized_command
+  /mobile_bimanual/operating_mode:
+    type: std_msgs/msg/String
+    required: false  # required when using supervised_robot.launch.py; not normal robot.launch.py
+  /leader/left_forward_position_controller/commands:
+    type: std_msgs/msg/Float64MultiArray
+    required: false
+    role: requested_command
+  /leader/right_forward_position_controller/commands:
+    type: std_msgs/msg/Float64MultiArray
+    required: false
+    role: requested_command
+  /hardware/leader/left_forward_position_controller/commands:
+    type: std_msgs/msg/Float64MultiArray
+    required: false
+    role: authorized_command
+  /hardware/leader/right_forward_position_controller/commands:
+    type: std_msgs/msg/Float64MultiArray
+    required: false
+    role: authorized_command
+  /leader/left_gripper_controller/controller_state:
+    type: control_msgs/msg/JointTrajectoryControllerState
+    required: false
+  /leader/right_gripper_controller/controller_state:
+    type: control_msgs/msg/JointTrajectoryControllerState
+    required: false
+  /leader/left_gripper_controller/joint_trajectory:
+    type: trajectory_msgs/msg/JointTrajectory
+    required: false
+    role: requested_command
+  /leader/right_gripper_controller/joint_trajectory:
+    type: trajectory_msgs/msg/JointTrajectory
+    required: false
+    role: requested_command
+  /tracer/raw_tf:
+    type: tf2_msgs/msg/TFMessage
+    required: false
+  /leader/tf:
+    type: tf2_msgs/msg/TFMessage
+    required: false
+  /leader/tf_static:
+    type: tf2_msgs/msg/TFMessage
+    required: false
+# Cameras and SEW Mimic are intentionally not named until their live interfaces are confirmed.
