@@ -29,6 +29,7 @@ def generate_launch_description():
         launch_arguments={
             "use_fake_hardware": use_fake_hardware,
             "description_file": "mobile_bimanual.urdf.xacro",
+            "launch_foxglove": LaunchConfiguration("launch_foxglove"),
         }.items(),
     )
 
@@ -64,6 +65,7 @@ def generate_launch_description():
                 description="Use fake OpenArm hardware.",
             ),
             tracer_can_interface_argument,
+            DeclareLaunchArgument("launch_foxglove", default_value="true"),
             pedestal_openarm_launch,
             tracer_launch,
             filtered_odometry,

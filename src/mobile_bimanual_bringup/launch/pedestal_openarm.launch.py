@@ -4,6 +4,7 @@ from launch.actions import (
     GroupAction,
     IncludeLaunchDescription,
 )
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     Command,
@@ -109,8 +110,6 @@ def generate_launch_description():
         scoped=True,
         actions=[
             SetRemap(src="/leader/robot_description", dst="/robot_description"),
-            SetRemap(src="/tf", dst="/leader/tf"),
-            SetRemap(src="/tf_static", dst="/leader/tf_static"),
             openarm_launch_description,
         ],
     )
@@ -205,12 +204,14 @@ def generate_launch_description():
 
     foxglove_launch_description = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(foxglove_launch_path),
+        condition=IfCondition(LaunchConfiguration("launch_foxglove")),
     )
 
     return LaunchDescription(
         [
             use_fake_hardware_argument,
             description_file_argument,
+            DeclareLaunchArgument("launch_foxglove", default_value="true"),
             openarm_group,
             *pedestal_launch_description,
             openarm_joint_state_relay,

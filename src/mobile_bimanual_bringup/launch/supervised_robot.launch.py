@@ -43,6 +43,7 @@ def generate_launch_description():
                     "tracer_can_interface": LaunchConfiguration(
                         "tracer_can_interface"
                     ),
+                    "launch_foxglove": "false",
                 }.items(),
             ),
         ],
@@ -61,5 +62,18 @@ def generate_launch_description():
                 output="screen",
             ),
             hardware_group,
+            # Client publishers must retain public topic names, not inherit
+            # the hardware remaps and bypass the command gate.
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    PathJoinSubstitution(
+                        [
+                            FindPackageShare("mobile_bimanual_bringup"),
+                            "launch",
+                            "observability.launch.py",
+                        ]
+                    )
+                ),
+            ),
         ]
     )
