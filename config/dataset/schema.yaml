@@ -1,0 +1,210 @@
+schema_version: 1
+dataset:
+  fps: 30
+  episode_policy: one_recording_per_episode
+  normalize_grippers: false
+  timestamp_policy: mcap_log_time
+  # Time used for data alignment is MCAP log_time. Header/publish times retained for QA.
+  # Switch to verified acquisition time only after clock-domain testing.
+observations:
+  arm_joints:
+    topic: /leader/joint_states
+    ros_type: sensor_msgs/msg/JointState
+    field: named_positions
+    joints: [openarm_left_joint1, openarm_left_joint2, openarm_left_joint3, openarm_left_joint4, openarm_left_joint5, openarm_left_joint6, openarm_left_joint7, openarm_right_joint1, openarm_right_joint2, openarm_right_joint3, openarm_right_joint4, openarm_right_joint5, openarm_right_joint6, openarm_right_joint7]
+    units: rad
+    alignment: linear
+    max_gap_s: 0.05
+    required: true
+  left_gripper:
+    topic: /leader/joint_states
+    ros_type: sensor_msgs/msg/JointState
+    field: named_position
+    joint: openarm_left_finger_joint1
+    units: nominal_m
+    alignment: linear
+    max_gap_s: 0.05
+    required: true
+  right_gripper:
+    topic: /leader/joint_states
+    ros_type: sensor_msgs/msg/JointState
+    field: named_position
+    joint: openarm_right_finger_joint1
+    units: nominal_m
+    alignment: linear
+    max_gap_s: 0.05
+    required: true
+  pedestal_position:
+    topic: /pedestal/position
+    ros_type: std_msgs/msg/Float64
+    field: data
+    units: m
+    alignment: linear
+    max_gap_s: 0.15
+    required: true
+  pedestal_valid:
+    topic: /pedestal/position_valid
+    ros_type: std_msgs/msg/Bool
+    field: data
+    units: boolean
+    alignment: previous
+    max_age_s: 0.15
+    required: true
+  base_twist:
+    topic: /odom
+    ros_type: nav_msgs/msg/Odometry
+    field: twist_planar
+    units: [m/s, rad/s]
+    alignment: linear
+    max_gap_s: 0.10
+    required: true
+  base_pose:
+    topic: /odom
+    ros_type: nav_msgs/msg/Odometry
+    field: pose_planar
+    units: [m, m, rad]
+    alignment: planar_pose
+    max_gap_s: 0.10
+    required: true
+  mode:
+    topic: /mobile_bimanual/operating_mode
+    ros_type: std_msgs/msg/String
+    field: data
+    units: category
+    alignment: previous
+    max_age_s: 0.5
+    required: false
+  pedestal_task_state:
+    topic: /pedestal/task_state
+    ros_type: std_msgs/msg/String
+    field: data
+    units: category
+    alignment: previous
+    max_age_s: 0.15
+    required: false
+  pedestal_unlocked:
+    topic: /pedestal/unlocked
+    ros_type: std_msgs/msg/Bool
+    field: data
+    units: boolean
+    alignment: previous
+    max_age_s: 0.15
+    required: false
+  pedestal_goal_active:
+    topic: /pedestal/goal_active
+    ros_type: std_msgs/msg/Bool
+    field: data
+    units: boolean
+    alignment: previous
+    max_age_s: 0.15
+    required: false
+
+  left_gripper_controller_feedback:
+    topic: /leader/left_gripper_controller/controller_state
+    ros_type: control_msgs/msg/JointTrajectoryControllerState
+    field: controller_feedback
+    joint: openarm_left_finger_joint1
+    units: nominal_m
+    alignment: linear
+    max_gap_s: 0.05
+    required: false
+  left_gripper_controller_reference:
+    topic: /leader/left_gripper_controller/controller_state
+    ros_type: control_msgs/msg/JointTrajectoryControllerState
+    field: controller_reference
+    joint: openarm_left_finger_joint1
+    units: nominal_m
+    alignment: linear
+    max_gap_s: 0.05
+    required: false
+  left_gripper_controller_error:
+    topic: /leader/left_gripper_controller/controller_state
+    ros_type: control_msgs/msg/JointTrajectoryControllerState
+    field: controller_error
+    joint: openarm_left_finger_joint1
+    units: nominal_m
+    alignment: linear
+    max_gap_s: 0.05
+    required: false
+  right_gripper_controller_feedback:
+    topic: /leader/right_gripper_controller/controller_state
+    ros_type: control_msgs/msg/JointTrajectoryControllerState
+    field: controller_feedback
+    joint: openarm_right_finger_joint1
+    units: nominal_m
+    alignment: linear
+    max_gap_s: 0.05
+    required: false
+  right_gripper_controller_reference:
+    topic: /leader/right_gripper_controller/controller_state
+    ros_type: control_msgs/msg/JointTrajectoryControllerState
+    field: controller_reference
+    joint: openarm_right_finger_joint1
+    units: nominal_m
+    alignment: linear
+    max_gap_s: 0.05
+    required: false
+  right_gripper_controller_error:
+    topic: /leader/right_gripper_controller/controller_state
+    ros_type: control_msgs/msg/JointTrajectoryControllerState
+    field: controller_error
+    joint: openarm_right_finger_joint1
+    units: nominal_m
+    alignment: linear
+    max_gap_s: 0.05
+    required: false
+actions:
+  base_motion:
+    mode: base_motion
+    semantics: expiring_velocity
+    max_age_s: 0.06 # conversion freshness, NOT a proven hardware watchdog period
+    requested: /cmd_vel
+    authorized: /hardware/cmd_vel
+    ros_type: geometry_msgs/msg/Twist
+    field: planar_twist
+    units: [m/s, rad/s]
+  height_adjust:
+    mode: height_adjust
+    semantics: event_target
+    requested: /pedestal/position_target
+    authorized: /hardware/pedestal/position_target
+    ros_type: std_msgs/msg/Float64
+    field: data
+    units: m
+  manipulation_left:
+    mode: manipulation
+    semantics: persistent_setpoint
+    requested: /leader/left_forward_position_controller/commands
+    authorized: /hardware/leader/left_forward_position_controller/commands
+    ros_type: std_msgs/msg/Float64MultiArray
+    field: data7
+    units: rad
+  manipulation_right:
+    mode: manipulation
+    semantics: persistent_setpoint
+    requested: /leader/right_forward_position_controller/commands
+    authorized: /hardware/leader/right_forward_position_controller/commands
+    ros_type: std_msgs/msg/Float64MultiArray
+    field: data7
+    units: rad
+  gripper_left:
+    mode: manipulation
+    independent_of_mode: true  # observed commands currently bypass gate
+    semantics: event_target
+    requested: /leader/left_gripper_controller/joint_trajectory
+    ros_type: trajectory_msgs/msg/JointTrajectory
+    field: joint_trajectory_event
+    joint: openarm_left_finger_joint1
+    units: nominal_m
+  gripper_right:
+    mode: manipulation
+    independent_of_mode: true  # observed commands currently bypass gate
+    semantics: event_target
+    requested: /leader/right_gripper_controller/joint_trajectory
+    ros_type: trajectory_msgs/msg/JointTrajectory
+    field: joint_trajectory_event
+    joint: openarm_right_finger_joint1
+    units: nominal_m
+optional_modalities:
+  images: [head, left_wrist, right_wrist]
+  teleoperation: sew_mimic
