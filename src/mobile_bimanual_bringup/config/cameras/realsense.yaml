@@ -1,0 +1,12 @@
+# Consumed by realsense2_camera/rs_launch.py via its config_file argument.
+# RealSense launch config_file expects a flat key/value YAML (not ROS node syntax).
+enable_color: true
+enable_depth: false
+enable_infra: false
+enable_infra1: false
+enable_infra2: false
+enable_gyro: false
+enable_accel: false
+enable_rgbd: false
+pointcloud.enable: false
+rgb_camera.color_profile: 640x480x30

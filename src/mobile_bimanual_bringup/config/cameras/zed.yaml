@@ -1,0 +1,11 @@
+# ZED 2i as a standard UVC stereo side-by-side RGB stream (no ZED SDK).
+# Device path is set by zed_device launch argument; prefer /dev/v4l/by-id/...
+# The output is 2560x720 stereo: LEFT/RIGHT cropping happens in a later step.
+/**:
+  ros__parameters:
+    pixel_format: yuyv2rgb
+    image_width: 2560
+    image_height: 720
+    framerate: 30.0
+    camera_name: zed2i
+    frame_id: zed2i_stereo_frame

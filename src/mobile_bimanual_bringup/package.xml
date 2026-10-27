@@ -9,6 +9,9 @@
 
     <exec_depend>launch</exec_depend>
     <exec_depend>launch_ros</exec_depend>
+    <exec_depend>realsense2_camera</exec_depend>
+    <exec_depend>depthai_ros_driver</exec_depend>
+    <exec_depend>usb_cam</exec_depend>
     <exec_depend>openarm_bringup</exec_depend>
     <exec_depend>foxglove_bridge</exec_depend>
     <exec_depend>mobile_bimanual_description</exec_depend>
@@ -19,6 +22,7 @@
     <exec_depend>robot_state_publisher_gui</exec_depend>
     <exec_depend>rviz2</exec_depend>
     <exec_depend>rclpy</exec_depend>
+    <exec_depend>sensor_msgs</exec_depend>
     <exec_depend>nav_msgs</exec_depend>
     <exec_depend>geometry_msgs</exec_depend>
     <exec_depend>std_msgs</exec_depend>

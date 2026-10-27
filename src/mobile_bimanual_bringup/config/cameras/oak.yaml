@@ -1,0 +1,14 @@
+# RGB-only DepthAI ROS pipeline
+/oak:
+  ros__parameters:
+    camera:
+      i_pipeline_type: RGB
+      i_nn_type: none
+      i_enable_ir: false
+
+    rgb:
+      i_fps: 30.0
+      i_resolution: 1080P
+      i_output_isp: false
+      i_width: 640
+      i_height: 480

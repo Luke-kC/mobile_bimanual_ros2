@@ -18,6 +18,10 @@ setup(
         ("share/" + package_name + "/launch", glob("launch/*.launch.py")),
         ("share/" + package_name + "/config", glob("config/*.yaml")),
         (
+            os.path.join("share", package_name, "config", "cameras"),
+            glob("config/cameras/*.yaml"),
+        ),
+        (
             os.path.join("share", package_name, "config", "controllers"),
             glob("config/controllers/*.yaml"),
         ),
@@ -31,6 +35,7 @@ setup(
     entry_points={
         "console_scripts": [
             "filtered_odometry = mobile_bimanual_bringup.filtered_odometry:main",
+            "zed_left_image = mobile_bimanual_bringup.zed_left_image_node:main",
         ],
     },
 )
