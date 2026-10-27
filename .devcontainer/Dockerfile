@@ -40,6 +40,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-jazzy-ros2-controllers \
     ros-jazzy-foxglove-bridge \
     ros-jazzy-rosbag2-storage-mcap \
+    # RGB-only camera drivers: D455f, OAK-D Pro (DepthAI ROS v2), ZED 2i (UVC).
+    # Keep DepthAI v2 to match the already-qualified host configuration.
+    ros-jazzy-realsense2-camera \
+    ros-jazzy-depthai-ros \
+    ros-jazzy-depthai-bridge \
+    ros-jazzy-depthai-examples \
+    ros-jazzy-usb-cam \
+    ros-jazzy-image-transport \
+    ros-jazzy-cv-bridge \
+    v4l-utils \
     ros-jazzy-mujoco-ros2-control \
     ros-jazzy-mujoco-ros2-control-demos \
     ros-jazzy-tf2-tools \
@@ -47,6 +57,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-jazzy-rqt-graph \
     ros-jazzy-topic-tools \
     can-utils \
+    usbutils \
     iproute2 \
     bat \
     eza \

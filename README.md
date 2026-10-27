@@ -20,9 +20,18 @@ cd mobile_bimanual_ros2
 
 Install Docker Engine and the Dev Container CLI if they are not already available. Ensure your user can use Docker. This repository's `scripts/dev` helper requires both `docker` and `devcontainer` on the host.
 
-### 2. Install persistent CAN interface names (host; once per computer)
+### 2. Install camera udev rules and persistent CAN interface names (host; once per computer)
 
-Connect the CAN adapters, then install the checked-in udev rules and `systemd.link` files:
+Run on host:
+
+```bash
+# On the host, from the repository root
+./scripts/install_camera_rules.sh
+```
+
+After installing the camera rules, unplug and reconnect the cameras.
+
+Connect the CAN adapters, then install the checked-in udev rules and `systemd.link` files, `sudo reboot` immediately reboots the computer, make sure you save any work:
 
 ```bash
 # On the host, from the repository root
@@ -41,6 +50,8 @@ ip -brief link show type can
 | `can_arm_r` | PEAK adapter channel 0 → right OpenArm | Classic CAN 2.0, 1 Mbps |
 | `can_arm_l` | PEAK adapter channel 1 → left OpenArm | Classic CAN 2.0, 1 Mbps |
 | `can_tracer` | candleLight adapter → Tracer | Classic CAN 2.0, 500 kbps |
+
+Plug in can devices one at a time to check.
 
 Rules are in [`config/can/`](config/can/). They were written for the current PEAK and candleLight adapters; **recheck adapter IDs and channel-to-arm wiring on a replacement computer or after changing adapters**. The two PEAK channels are identified by channel ID, while the candleLight rule matches its USB serial.
 
@@ -70,9 +81,9 @@ Connect the pedestal ESP32 **before** creating the container if you intend to ru
 ./scripts/dev shell
 ```
 
-On initial creation, `.devcontainer/post-create.sh` imports the pinned upstream repositories, applies the OpenArm launch/CAN workarounds, installs dependencies, and builds the supported workspace packages.
+On initial creation, `.devcontainer/post-create.sh` imports the pinned upstream repositories, applies the OpenArm launch/CAN workarounds, installs dependencies, and builds the supported workspace packages. It takes forever, so just let it run.
 
-If the automatic build did not complete, run **inside the container**:
+If the automatic build did not complete, run **inside the container**, usually not needed:
 
 ```bash
 ./scripts/build.sh
@@ -131,6 +142,7 @@ cd mobile_bimanual_ros2
 ```
 
 **If the container is not starting/tossing errors, try stopping and restarting:**
+
 ```bash
 ./scripts/dev stop
 ./scripts/dev up
